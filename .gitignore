@@ -1,0 +1,8 @@
+# Audit DATA must never be committed — it lives on auditors' devices and in the head-office sheet.
+*.json.bak
+FlameOn-Backup-*.json
+FlameOn-Audit-*.csv
+FlameOn-Dashboard-*.csv
+archive/
+.DS_Store
+Thumbs.db
