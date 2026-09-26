@@ -8,38 +8,12 @@ Current build: **v8.0.5 (2026-09-26)**, with the baked questionnaires, branch li
 
 ---
 
-## What you need
+## It is live
 
-A free GitHub account. Nothing else — no software to install.
+**https://quandro1.github.io/flameon-audit/**
 
----
-
-## Steps (about 5 minutes)
-
-1. Go to **github.com** and sign in (or create a free account).
-2. Click **+** (top right) → **New repository**.
-   - Repository name: `flameon-audit`
-   - Select **Public**. (Anyone with the link can open the app. Audit data never leaves the auditor's
-     phone — only this app's code is public. The admin login is in the file, so treat it as a lock on
-     the door, not a safe: see "About the login" below.)
-   - Do **not** tick "Add a README".
-   - Click **Create repository**.
-3. On the next page click **uploading an existing file**.
-4. Open this folder on your computer and drag these in:
-   - `index.html`
-   - `manifest.webmanifest`
-   - `sw.js`
-   - `.nojekyll`
-   - the whole `icons` folder
-5. Click **Commit changes**.
-6. Go to the repository's **Settings** → **Pages** (left sidebar).
-   - Under "Build and deployment", Source = **Deploy from a branch**
-   - Branch = **main**, folder = **/ (root)** → **Save**
-7. Wait 1–2 minutes, then reload that page. It shows the live address:
-
-   `https://<your-username>.github.io/flameon-audit/`
-
-That address is the app. Send it to the auditors.
+Published 2026-09-26 from this folder (GitHub repo `quandro1/flameon-audit`, Pages on `main` / root).
+Send that link to the auditors.
 
 ---
 
@@ -56,13 +30,15 @@ one place.
 
 ## Updating the app later
 
-1. In the repository, click `index.html` → the pencil (Edit) → paste the new version → **Commit**.
-   (Or use "Add file → Upload files" and drop the new `index.html` in to replace it.)
-2. **Also edit `sw.js` and change the `CACHE` line**, e.g. `flameon-audit-v8.0.5` → `flameon-audit-v8.0.6`.
+1. Edit `index.html` in this folder.
+2. **Also change the `CACHE` line in `sw.js`**, e.g. `flameon-audit-v8.0.5` → `flameon-audit-v8.0.6`.
+3. From this folder: `git add -A && git commit -m "..." && git push origin main`
+   (The GitHub CLI is installed and already signed in as `quandro1`, so the push just works.)
+   The live site updates about a minute later.
 
    This step is not optional. Installed phones keep serving the cached copy until that name changes,
    so skipping it means auditors silently keep running the old questionnaire.
-3. Auditors get a "A newer version is ready — Reload now" banner on their next launch. Their drafts,
+4. Auditors get a "A newer version is ready — Reload now" banner on their next launch. Their drafts,
    completed audits and photos are untouched by an update.
 
 ---
