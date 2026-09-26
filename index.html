@@ -1,12 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Flame On — Operations Audit · FO-STD-001</title>
 <meta name="description" content="Flame On branch operations audit — daily checks, weekly/monthly/quarterly audits, CAPA register and branch dashboard. Works offline once installed.">
-<!-- PWA. Relative href/scope so the app works from any GitHub Pages sub-path, and so a
-     downloaded single-file copy (file://) simply 404s the manifest instead of breaking. -->
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#1A1A1A">
 <link rel="icon" href="icons/icon-192.png" type="image/png">
@@ -15,6 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="FO Audit">
+<title>Flame On — Operations Audit · FO-STD-001</title>
 <style>
   :root{
     --flame:#DA291C; --flame-dark:#A81B12; --charcoal:#1A1A1A; --ink:#262220;
@@ -80,6 +76,9 @@
   button.btn{font-family:var(--sans);font-size:12.5px;font-weight:650;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink);padding:9px 12px;border-radius:7px;line-height:1;display:inline-flex;align-items:center;gap:6px;min-height:38px}
   button.btn:hover{border-color:var(--flame);color:var(--flame-dark)}
   button.btn.ghost{background:transparent}
+  button.btn.saveapp{border-color:var(--charcoal);background:var(--charcoal);color:#fff} button.btn.saveapp:hover{background:#000;color:#fff}
+  .saveapp-card{margin-top:14px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--cream-2);text-align:left;font-size:13px;color:var(--ink);display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .saveapp-card p{margin:0;flex:1 1 220px;color:var(--muted)} .saveapp-card b{color:var(--ink)}
   button.btn.submit{border-color:var(--flame);color:#fff;background:var(--flame)} button.btn.submit:hover{background:var(--flame-dark);color:#fff}
   button.btn.sm{font-size:11.5px;padding:7px 10px;min-height:32px}
   button.btn[disabled]{opacity:.5;cursor:not-allowed}
@@ -243,6 +242,8 @@
   .qphotos .ph-add:hover{border-color:var(--flame);color:var(--flame-dark)}
   .qphotos .thumb{position:relative;width:52px;height:52px;border-radius:8px;overflow:hidden;border:1px solid var(--line);flex:none;cursor:pointer;padding:0;background:var(--cream-2)}
   .qphotos .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .qphotos .thumb.missing{background:var(--cream-2);border-style:dashed;border-color:var(--amber)}
+  .qphotos .thumb.missing::after{content:"no photo";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--amber);text-align:center;letter-spacing:.02em}
   .qphotos .thumb .del{position:absolute;top:0;right:0;background:rgba(26,26,26,.75);color:#fff;border:none;width:18px;height:18px;font-size:11px;line-height:1;cursor:pointer;border-radius:0 0 0 7px;padding:0}
   .photomodal{position:fixed;inset:0;background:rgba(20,18,16,.86);z-index:150;display:none;align-items:center;justify-content:center;padding:20px;flex-direction:column;gap:12px}
   .photomodal.show{display:flex}
@@ -398,22 +399,6 @@
     #printreport{display:block;max-width:none;padding:0}
     .masthead,.pr-sec h3,.pr-grade .pg-big.fail{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   }
-
-  /* ---- HQ submission (v8.1) ---- */
-  .toolbar .btn.sync.pending{border-color:var(--amber);color:#8a5600;background:var(--amber-bg)}
-  .toolbar .btn.sync.err{border-color:var(--red);color:var(--red);background:var(--red-bg)}
-  .subchip{display:inline-flex;align-items:center;gap:6px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:800;border-radius:16px;padding:4px 12px;border:1px solid}
-  .subchip.sent{background:var(--green-bg);border-color:#bfd8bf;color:var(--green)}
-  .subchip.queued{background:var(--amber-bg);border-color:#ecd6a6;color:#7a5500}
-  .subchip.err{background:var(--red-bg);border-color:#eebfbd;color:var(--red)}
-  .subchip.off{background:var(--cream-2);border-color:var(--line);color:var(--muted-2)}
-  .sub-panel .subrow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
-  .sub-panel .sf{display:flex;flex-direction:column;gap:5px;flex:1 1 260px;min-width:0}
-  .sub-panel .sf label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
-  .sub-panel .sf input{font-family:var(--sans);font-size:13.5px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--cream);min-height:40px;width:100%}
-  .sub-panel .sf input:focus{outline:none;border-color:var(--flame);background:#fff}
-  .sub-panel .schk{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding-bottom:9px}
-  .sub-q{font-family:var(--mono);font-size:12px;margin-top:9px;color:var(--muted);white-space:pre-wrap}
 </style>
 </head>
 <body>
@@ -421,11 +406,11 @@
 <div class="masthead">
   <div class="inner">
     <span class="logo">
-      <svg class="flame-mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2c1.6 4.2-1.2 6.6-3.4 8.9-2.5 2.6-5 5.3-5 9.6C7.6 26.4 11.5 30 16 30s8.4-3.6 8.4-9.5c0-2.7-1.1-4.6-2.3-6.2-.6 1.4-1.7 2.3-3 2.6 1.5-3.3.8-7.5-3.1-9.4.6 2.3-.3 3.8-1.7 5.2.2-3.5-.9-7-1.3-10.7z" fill="#DA291C"/></svg>
+      <svg class="flame-mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2c1.6 4.2-1.2 6.6-3.4 8.9-2.5 2.6-5 5.3-5 9.6C7.6 26.4 11.5 30 16 30s8.4-3.6 8.4-9.5c0-2.7-1.1-4.6-2.3-6.2-.6 1.4-1.7 2.3-3 2.6 1.5-3.3.8-7.5-3.1-9.4.6 2.3-.3 3.8-1.7 5.2.2-3.5-.9-7-1.3-10.7z" fill="#DA291C"></path></svg>
       <span class="name">FLAME <b>ON</b></span>
     </span>
     <h1>Operations Audit</h1>
-    <div class="code">Doc <b>FO-STD-001</b><br>Multi-branch · v8.1 · <span id="qsMastV">Questionnaire —</span></div>
+    <div class="code">Doc <b>FO-STD-001</b><br>Multi-branch · v8.0.5 · <span id="qsMastV">Questionnaire —</span></div>
   </div>
 </div>
 
@@ -434,7 +419,7 @@
 <div class="headbar">
   <div class="inner">
     <div class="field typesel"><label for="fldType">Audit type</label>
-      <select id="fldType" data-type>
+      <select id="fldType" data-type="">
         <option value="daily">Daily checks</option>
         <option value="weekly">Weekly full audit</option>
         <option value="monthly">Monthly regional audit</option>
@@ -442,7 +427,7 @@
       </select>
     </div>
     <div class="field branchsel"><label for="fldBranch">Branch (answers save per branch &amp; type)</label>
-      <select id="fldBranch" data-branch>
+      <select id="fldBranch" data-branch="">
         <option value="">Select branch…</option>
         <option>Abbottabad Main Branch</option><option>Delco</option>
         <option>Murree Road Branch</option><option>Haripur Branch</option><option>Warehouse</option>
@@ -474,10 +459,10 @@
     <span class="prog qs" id="qsChip" title="Active questionnaire version">Q —</span>
     <div class="tb-right">
       <button class="btn submit" id="completeBtn">✓ Complete audit</button>
-      <button class="btn ghost sync" id="syncBtn" title="Send completed audits to head office">⇪ Sync</button>
       <button class="btn ghost" id="csvBtn">⤓ CSV</button>
       <button class="btn ghost" id="printBtn">🖶 Print</button>
       <button class="btn ghost" id="backupBtn" title="Download a full backup of every audit, photo and setting">⛃ Backup</button>
+      <button class="btn saveapp" id="saveAppBtn" title="Save this app into the phone's Downloads folder — open it from there every time and it keeps using the same stored audits">📲 Save to phone</button>
       <button class="btn ghost" id="clearBtn">✕ Discard draft</button>
     </div>
   </div>
@@ -496,7 +481,7 @@
   <button class="pm-close" id="photoModalClose">Close</button>
 </div>
 
-<script id="bakedConfig"></script>
+<script id="bakedConfig">window.__FO_BAKED_CONFIG__=[{"id":"pizza","name":"Pizza Quality","grp":"Product Quality","cat":"product","inferred":false,"checks":[{"id":"pizza-0","q":"Dough quality","lk":"correctly proofed, right ball size for the order, stretches even with no tears, crisp when baked","rf":"under- or over-proofed, wrong size, tough or torn, doughy when baked","spec":false,"crit":false},{"id":"pizza-1","q":"Sauce coverage","lk":"dosed to the FO-PSC spec amount for the size, even base layer, no bare or flooded patches","rf":"no measure used, dry patches, sauce running over the edge, or the wrong amount","spec":true,"crit":false},{"id":"pizza-2","q":"Cheese weight","lk":"scale-checked to the FO-PSC spec-sheet weight for the size (medium ≈ 110 g), spread evenly","rf":"done by eye, under or over weight, bald spots or clumps","spec":true,"crit":false},{"id":"pizza-3","q":"Topping distribution","lk":"correct items and counts per the spec card, spread to the edge, even","rf":"missing or wrong toppings, piled in the centre, sparse or overloaded","spec":false,"crit":false},{"id":"pizza-4","q":"Crust color","lk":"even golden all the way round — compare with the photo on the spec card","rf":"pale, a burnt rim, or uneven colour vs the card photo","spec":false,"crit":false},{"id":"pizza-5","q":"Bake quality","lk":"baked through, crisp base, even bake top and bottom (the oven setting itself is checked under Equipment)","rf":"doughy or soggy middle, burnt, or undercooked","spec":false,"crit":false},{"id":"pizza-6","q":"Portion accuracy","lk":"correct diameter for the size ordered (measure against the size template) and complete even cuts","rf":"wrong size, or uneven/incomplete cuts","spec":true,"crit":false},{"id":"pizza-7","q":"Taste vs control pizza","lk":"taste one slice against a control pizza built to the spec card during the visit (or the descriptor card): seasoning clearly present, none of: sour/off, raw-dough, burnt, or stale-oil taste","rf":"any single defect from the list, or clearly different from the control","spec":false,"crit":false},{"id":"pizza-8","q":"Holding time","lk":"hold time in minutes printed on the spec card and a time-mark on every held pizza; the audit item served or dispatched inside that limit","rf":"no time mark on held product, or any item past its printed hold minutes","spec":false,"crit":false},{"id":"pizza-9","q":"Packaging","lk":"correct box, pizza centred, sealed, box dry","rf":"wrong box, soggy, stuck to the lid, or crushed","spec":false,"crit":false}]},{"id":"burger","name":"Burger & Sandwich","grp":"Product Quality","cat":"product","inferred":false,"checks":[{"id":"burger-0","q":"Bun quality","lk":"bun springs back when pressed lightly, toast marks visible, intact and holding together","rf":"hard or dry bun, no toast marks, soggy base, or falling apart","spec":false,"crit":false},{"id":"burger-1","q":"Patty weight to spec","lk":"raw patty scale-checked to the FO-PSC spec-sheet weight","rf":"under or over the spec weight, or portioned by eye","spec":true,"crit":false},{"id":"burger-cooked","q":"Patty cooked through","lk":"probe or cut the audited patty: ≥75°C at the centre, no pink, juices run clear","rf":"raw or pink centre — answer No AND tick the Undercooked protein gate box","spec":false,"crit":true},{"id":"burger-2","q":"Sauce quantity","lk":"correct sauce, dosed with the spec spoon or bottle to the FO-PSC amount, evenly applied","rf":"no measure used, dry, drowning, leaking out, or the wrong sauce","spec":true,"crit":false},{"id":"burger-3","q":"Vegetable freshness","lk":"open the audit item: every vegetable piece crisp, full-coloured, cut per the spec card","rf":"any single wilted, brown-edged or slimy piece, or a missing vegetable","spec":false,"crit":false},{"id":"burger-4","q":"Assembly accuracy","lk":"correct build order and components per the spec card","rf":"wrong order, missing items, sloppy build","spec":false,"crit":false},{"id":"burger-5","q":"Appearance vs spec photo","lk":"compare with the photo on the spec card: layers inside the bun edge, top bun centred, wrapper clean","rf":"filling hanging out, sauce smeared on the wrapper, or the build leaning apart","spec":false,"crit":false},{"id":"burger-6","q":"Served hot (probe check)","lk":"probed at hand-off: core 63°C or above; cheese melted where applicable","rf":"below 63°C, lukewarm, or cheese unmelted","spec":false,"crit":false},{"id":"burger-7","q":"Taste — no defects","lk":"taste one bite of the audit burger: seasoning clearly present; none of: off or sour meat taste, stale-bun taste, burnt taste, grease pooling","rf":"any single defect from the list","spec":false,"crit":false}]},{"id":"chicken","name":"Fried Chicken","grp":"Product Quality","cat":"product","inferred":true,"checks":[{"id":"chicken-0","q":"Marination records and coverage","lk":"marinating tubs labelled with date and time, inside the spec marination window; pieces fully covered by marinade","rf":"unlabelled tubs, time outside the spec window, dry uncovered pieces","spec":false,"crit":false},{"id":"chicken-1","q":"Coating / crust","lk":"even, crisp, golden, adhered to the meat","rf":"pale, soggy, burnt, or falling off / bald spots","spec":false,"crit":false},{"id":"chicken-2","q":"Chicken cooked through","lk":"probe the thickest piece: ≥75°C at the bone; juices run clear, no pink or blood","rf":"below 75°C at the core, or pink or blood at the bone — answer No AND tick the Undercooked protein gate box","spec":false,"crit":true},{"id":"chicken-3","q":"Colour","lk":"even golden — compare with the colour photo on the spec card","rf":"dark or over-fried, or pale vs the card photo","spec":false,"crit":false},{"id":"chicken-4","q":"Fryer oil condition and temperature","lk":"oil golden and clear (compare to the oil colour card), oil-change log up to date, fryer display at the SOP fry temperature","rf":"dark or smelly oil, no oil log, fryer temperature off the SOP setting","spec":false,"crit":false},{"id":"chicken-5","q":"Served hot (probe check)","lk":"probed at hand-off: 63°C or above","rf":"below 63°C or lukewarm","spec":false,"crit":false},{"id":"chicken-6","q":"Taste and texture — no defects","lk":"taste one piece: marinade tastable through the meat per the descriptor card; none of: no seasoning detectable, salt dominant, stale-oil or off taste, dry stringy meat","rf":"any single defect from the list","spec":false,"crit":false}]},{"id":"fries","name":"Loaded Fries","grp":"Product Quality","cat":"product","inferred":true,"checks":[{"id":"fries-0","q":"Fries quality","lk":"crisp, golden, hot, evenly cut","rf":"soggy, limp, pale, or cold","spec":false,"crit":false},{"id":"fries-1","q":"Topping & sauce coverage","lk":"even coverage, correct toppings and sauces per the spec card, right amount","rf":"sparse or dry, drowning, or wrong toppings","spec":false,"crit":false},{"id":"fries-2","q":"Cheese fully melted","lk":"cheese melted edge to edge — no solid shreds visible, pulls when lifted","rf":"unmelted shreds, or a congealed cold layer","spec":false,"crit":false},{"id":"fries-3","q":"Portion","lk":"scale-checked to the FO-PSC spec amount for the size","rf":"under or over portion, or portioned by eye","spec":true,"crit":false},{"id":"fries-4","q":"Hot at serve/dispatch (probe check)","lk":"probed at hand-off or bag-up: 63°C or above, fries still crisp","rf":"below 63°C, fries gone soft","spec":false,"crit":false},{"id":"fries-5","q":"Taste — no defects","lk":"taste 3 fries from the audit portion: seasoning present; none of: stale-oil taste, no seasoning detectable, off taste","rf":"any single defect from the list","spec":false,"crit":false}]},{"id":"pasta","name":"Pasta","grp":"Product Quality","cat":"product","inferred":false,"checks":[{"id":"pasta-0","q":"Pasta doneness","lk":"firm to the bite (al dente), strands separate, not clumped","rf":"mushy or overcooked, hard or undercooked, stuck together","spec":false,"crit":false},{"id":"pasta-1","q":"Sauce consistency","lk":"correct thickness, coats evenly, right amount per the spec card","rf":"dry or clumpy, watery, split","spec":false,"crit":false},{"id":"pasta-2","q":"Protein quality","lk":"cooked through, correct amount per the card, fresh","rf":"raw or dry, sparse, missing","spec":false,"crit":false},{"id":"pasta-3","q":"Portion size","lk":"scale-checked to the FO-PSC spec amount","rf":"under or over portion, or portioned by eye","spec":true,"crit":false},{"id":"pasta-4","q":"Taste — no defects","lk":"taste one forkful with sauce: seasoning present; none of: no seasoning detectable, salt dominant, sour or off taste","rf":"any single defect from the list","spec":false,"crit":false}]},{"id":"wrap","name":"Wrap & Roll","grp":"Product Quality","cat":"product","inferred":false,"checks":[{"id":"wrap-0","q":"Tortilla quality","lk":"fresh, pliable, lightly toasted, intact","rf":"torn, dry and cracking, stale, or soggy","spec":false,"crit":false},{"id":"wrap-1","q":"Filling accuracy","lk":"correct fillings dosed to the FO-PSC amounts per the card, even end to end","rf":"missing or wrong fillings, no measure used, sparse or overstuffed","spec":true,"crit":false},{"id":"wrap-2","q":"Rolling quality","lk":"tight, sealed, holds together, clean cut","rf":"loose, unrolling, filling spilling","spec":false,"crit":false},{"id":"wrap-3","q":"Served hot (probe check, grilled items)","lk":"probed at hand-off: core 63°C or above; N/A for cold wraps","rf":"below 63°C or lukewarm","spec":false,"crit":false},{"id":"wrap-4","q":"Taste — no defects","lk":"taste one bite from the centre: sauce tastable but not dripping when held level; none of: no seasoning detectable, off taste, dry (no sauce tastable)","rf":"any single defect from the list","spec":false,"crit":false}]},{"id":"steak","name":"Steak","grp":"Product Quality","cat":"product","inferred":false,"checks":[{"id":"steak-0","q":"Protein quality","lk":"correct cut and the ordered doneness, juicy, good sear, rested","rf":"over- or undercooked vs the order, dry, tough","spec":false,"crit":false},{"id":"steak-1","q":"Sauce quality","lk":"correct sauce, right consistency and amount per the card","rf":"split, dry, drowning, or the wrong sauce","spec":false,"crit":false},{"id":"steak-2","q":"Side dishes","lk":"sides match the menu order, cooked through and hot, portion per the spec card","rf":"wrong or missing side, cold or undercooked, under the spec portion","spec":false,"crit":false},{"id":"steak-3","q":"Plating vs spec photo","lk":"compare with the plating photo on the spec card: each component in its zone, plate rim clean, plate warm","rf":"sauce or fingermarks on the rim, components misplaced vs the photo, or a cold plate","spec":false,"crit":false},{"id":"steak-4","q":"Served hot (probe check)","lk":"probed at hand-off: 63°C or above, or the spec serve temperature for the ordered doneness","rf":"below the spec serve temperature, cold plate","spec":false,"crit":false}]},{"id":"dessert","name":"Dessert","grp":"Product Quality","cat":"product","inferred":false,"checks":[{"id":"dessert-0","q":"Appearance vs spec photo","lk":"compare with the dessert photo on the spec card: shape intact, garnish present, serving dish clean","rf":"collapsed, smeared sauce, missing garnish, or a dirty dish","spec":false,"crit":false},{"id":"dessert-1","q":"Portion size","lk":"scale-checked to the spec-sheet weight for the dessert","rf":"under or over the spec weight, portioned by eye","spec":true,"crit":false},{"id":"dessert-2","q":"Texture","lk":"correct — molten centre for lava cake, moist for milk cake","rf":"dry, dense, overbaked, or no molten centre","spec":false,"crit":false},{"id":"dessert-3","q":"Flavor — no defects","lk":"taste one spoonful: the named flavour clearly tastable per the descriptor card; none of: sour or off taste, sugar the only tastable note","rf":"any single defect from the list","spec":false,"crit":false},{"id":"dessert-4","q":"Desserts labelled and in date","lk":"check the date label on every dessert in the display: all labelled and within use-by, none smelling off","rf":"any dessert past use-by (also tick the Expired product gate box), unlabelled, or off-smelling","spec":false,"crit":false}]},{"id":"beverage","name":"Beverage","grp":"Product Quality","cat":"product","inferred":false,"checks":[{"id":"beverage-0","q":"Recipe compliance","lk":"built to the recipe card and ratios, correct strength and sweetness","rf":"wrongly built, too weak, too strong, or too sweet","spec":false,"crit":false},{"id":"beverage-1","q":"Taste vs control build","lk":"sip against a control drink built to the recipe card during the visit: none of: flat where fizz is specified, watery (ice-melt dominant), off taste","rf":"any single defect from the list, or clearly different from the control","spec":false,"crit":false},{"id":"beverage-2","q":"Ice level","lk":"ice filled to the spec line for the cup size","rf":"too much ice (drink under-filled) or too little (drink served warm)","spec":false,"crit":false},{"id":"beverage-3","q":"Correct cup, clean, filled to line","lk":"cup or glass matches the menu spec, filled to within 1 cm of the fill line, outside dry and clean","rf":"wrong cup, short-filled, drips down the side, or a dirty rim","spec":false,"crit":false},{"id":"beverage-4","q":"Garnish","lk":"correct garnish present per the recipe card","rf":"missing or wrong garnish","spec":false,"crit":false}]},{"id":"safety","name":"Food Safety","grp":"Operations","cat":"safety","inferred":false,"checks":[{"id":"safety-0","q":"Cold holding at or below 5°C","lk":"probe 3 chilled items in chillers and cold wells during the visit: all ≤5°C — applies at every site","rf":"any chilled item or unit above 5°C","spec":false,"crit":true},{"id":"safety-frozen","q":"Frozen storage at or below −18°C","lk":"freezer display ≤−18°C and one probed pack hard frozen","rf":"above −18°C, or product soft or thawed (if thawed product is being re-used, also tick the Expired product gate box)","spec":false,"crit":false},{"id":"safety-hot","q":"Hot holding at or above 63°C","lk":"probe hot-held items: core ≥63°C, and hold/discard times marked for hot-held product","rf":"any hot-held item below 63°C, or no discard-time control","spec":false,"crit":true},{"id":"safety-logs","q":"Temperature logs complete","lk":"fridge, freezer and hot-hold logs for the last 7 days filled, in range and signed; out-of-range entries show an action","rf":"gaps, identical copied numbers, or out-of-range entries with no action (if logs are absent altogether, tick the Missing HACCP records gate box)","spec":false,"crit":false},{"id":"safety-probe","q":"Probe thermometer available and calibrated","lk":"working probe with sanitiser wipes at the line; accuracy checked weekly in iced water (reads 0°C ±1°C) and the check logged","rf":"no probe on site, flat battery, no calibration check logged, or log temperatures written without measuring","spec":false,"crit":false},{"id":"safety-cool","q":"Cooling of cooked food","lk":"hot food cooled in shallow trays and into the chiller within 90 minutes, down to ≤5°C before covering; cooling start time on the label; N/A only if the site cooks nothing for later use","rf":"hot pots cooling at room temperature, deep containers cooling overnight, food still warm inside the chiller","spec":false,"crit":true},{"id":"safety-reheat","q":"Reheating temperature","lk":"reheated food probed ≥75°C at the centre before serving or hot-holding; reheated once only","rf":"food reheated only until warm, reheated more than once, no probe check done","spec":false,"crit":false},{"id":"safety-thaw","q":"Thawing controlled","lk":"frozen food defrosted in the chiller (or per SOP), in a labelled container, never at room temperature; thaw date marked","rf":"food defrosting on a counter or in standing water, unlabelled thawed stock","spec":false,"crit":false},{"id":"safety-1","q":"Receiving checked and logged","lk":"if a delivery arrives, watch it: temperature probed, count checked, logged; if none arrives, check the last 3 receiving-log entries — temps and counts recorded and signed","rf":"goods signed for unchecked, warm items accepted, or log entries missing temps or counts","spec":false,"crit":false},{"id":"safety-2","q":"FIFO compliance","lk":"older stock at the front and used first, all stock dated","rf":"new stock in front, or undated stock (expired product found in use is scored under its own critical line)","spec":false,"crit":false},{"id":"safety-3","q":"Date labels on prepped items","lk":"every prepped or decanted item labelled with prep date and use-by date","rf":"unlabelled or undated containers on the line or in the fridge","spec":false,"crit":false},{"id":"safety-expired","q":"No expired food in use or storage","lk":"spot-check at least 10 dated items across line, fridges and dry store: nothing past its use-by","rf":"any item past its use-by in use or in stock — answer No AND tick the Expired product gate box","spec":false,"crit":true},{"id":"safety-4","q":"Cross-contamination prevention","lk":"raw meat stored below and fully separate from ready-to-eat food; colour-coded boards and utensils used for raw vs ready","rf":"raw above or touching ready-to-eat food, the same board or tools used for both, or the wrong colour board in use — also tick the relevant gate box if product is affected","spec":false,"crit":true},{"id":"safety-rte","q":"Ready-to-eat food handling","lk":"gloves or utensils (tongs, scoops) used for food that will not be cooked again — salads, garnishes, baked pizza, desserts; gloves changed after handling raw","rf":"bare hands on ready-to-eat food, or the same gloves worn from raw to ready work","spec":false,"crit":false},{"id":"safety-5a","q":"Handwash stations stocked and working","lk":"soap, hot water and paper towels at every handwash sink; sink clear and reachable","rf":"no soap, no hot water or towels, sink blocked or used for storage","spec":false,"crit":false},{"id":"safety-5b","q":"Staff wash hands at the right times","lk":"watch the line for 15 minutes: every person entering the line or leaving raw prep washes hands","rf":"any single missed wash — gloves changed without washing, or no wash after raw handling","spec":false,"crit":false},{"id":"safety-6","q":"Sanitizer strength tested in range","lk":"test the in-use solution with a kit strip at 2 stations: readings inside the range on the chemical label; solution changed on schedule","rf":"no test strips available, any reading out of range, or no sanitiser made up","spec":false,"crit":false},{"id":"safety-allergen","q":"Allergen control","lk":"staff can say which menu items contain common allergens (nuts, milk, egg, wheat, soy); allergen ingredients stored sealed and labelled; a clean board and utensils used for an allergy order","rf":"staff cannot answer an allergen question, open or unlabelled allergen ingredients, no way to prepare a safe order","spec":false,"crit":false},{"id":"safety-pest","q":"No pest evidence","lk":"check kitchen, storage, bin areas and behind equipment: no droppings, gnaw marks, egg cases, cockroaches or fly build-up","rf":"any live pest, droppings or gnawing anywhere food is stored or prepared — answer No AND tick the Pest activity gate box","spec":false,"crit":true},{"id":"safety-pestrec","q":"Pest prevention and records","lk":"door gaps and screens sealed; bait stations in place, intact and matching the station map; pest-control visit records current and findings actioned","rf":"gaps under doors, broken screens, missing or disturbed bait stations, or no pest-control records","spec":false,"crit":false},{"id":"safety-fit","q":"Fitness for work","lk":"no one with vomiting, diarrhoea, fever or infected cuts is handling food; cuts covered with a waterproof dressing; ask one staff member how they report illness — they can answer","rf":"staff working while ill, uncovered wounds on hands, or staff do not know the illness-reporting rule","spec":false,"crit":true},{"id":"safety-ice","q":"Ice and water hygiene","lk":"ice machine clean inside, scoop stored outside the ice on a hook, water tanks/filters on a cleaning schedule","rf":"dirty ice machine, scoop buried in the ice, no tank or filter maintenance","spec":false,"crit":false}]},{"id":"kitchen","name":"Kitchen & Prep","grp":"Operations","cat":"product","inferred":false,"checks":[{"id":"kitchen-2","q":"Prep procedures","lk":"prep to spec, correct quantities, hygienic","rf":"off-spec, wrong amounts, unhygienic","spec":false,"crit":false},{"id":"kitchen-3","q":"Recipe compliance","lk":"building to the FO-PSC spec cards, cards present at the station","rf":"working from memory, deviating from the card, cards missing","spec":false,"crit":false},{"id":"kitchen-1","q":"Equipment working and at temperature","lk":"every unit on the line works and shows its set temperature (fridge/freezer displays, oven set-point ~320°C for pizza); no unit dirty inside","rf":"any unit broken, out of temperature, or tagged out with no repair date","spec":false,"crit":false}]},{"id":"compliance","name":"Compliance, Records & Halal","grp":"Operations","cat":"safety","inferred":false,"checks":[{"id":"comp-lic","q":"Food authority licence current","lk":"KP Food Safety & Halal Food Authority licence/registration for THIS premises current and displayed (licences are per-premises)","rf":"expired or missing licence, or relying on another branch's licence","spec":false,"crit":false},{"id":"comp-insp","q":"Last inspection actions closed","lk":"findings from the last authority or internal inspection closed out with proof","rf":"open violations or unactioned findings from the last inspection","spec":false,"crit":false},{"id":"comp-halal","q":"Halal sourcing verified","lk":"meat and chicken received only via the approved supplier route; supplier Halal certificates (accredited body) on file or available from the Warehouse; no non-halal ingredient on site","rf":"meat of unknown source in the kitchen, or no certificate traceable for a supplier in use","spec":false,"crit":false},{"id":"comp-water","q":"Water safety records","lk":"drinking/production water from a tested source: latest water test report on file and tanks on a cleaning schedule","rf":"no water test report, dirty tanks, no filter maintenance","spec":false,"crit":false},{"id":"kitchen-0","q":"Opening checklist","lk":"completed and signed before service, today and the last 7 days","rf":"not done, unsigned, gaps, or filled in all at once","spec":false,"crit":false},{"id":"comp-train","q":"Food safety training records","lk":"every food handler has basic food-safety/hygiene training recorded (FS&HFA levels where available) and medical test records on file; new starters trained before working unsupervised","rf":"no training or medical records on site, untrained staff preparing food alone","spec":false,"crit":false}]},{"id":"service","name":"Service","grp":"Operations","cat":"service","inferred":false,"checks":[{"id":"service-0","q":"Guest greeted within 10 seconds","lk":"watch 3 guests arrive: each greeted within 10 seconds (same standard as daily check D1)","rf":"any of the 3 guests waits more than 10 seconds unacknowledged","spec":false,"crit":false},{"id":"service-1","q":"Upsell offered (2 of 3 orders)","lk":"listen to 3 orders being taken: an add-on, upsize or dip offered in at least 2 of the 3","rf":"offered in fewer than 2 of the 3 observed orders","spec":false,"crit":false},{"id":"service-2","q":"Order accuracy (5 orders checked)","lk":"check 5 completed orders against their tickets: all 5 match — right items, right modifiers","rf":"any wrong or missing item in the 5 checked, or any remake seen during the visit","spec":false,"crit":false},{"id":"service-3","q":"Complaints handled per standard","lk":"if a complaint happens, watch it: calm, apology, fixed or escalated per the standard; if none happens, check the complaint log — the last 3 entries show the action taken","rf":"dismissive handling seen, or logged complaints without an action note","spec":false,"crit":false},{"id":"service-4","q":"No rude or ignoring contact","lk":"watch staff–guest contacts across the visit: every observed contact polite, no guest left waiting for attention","rf":"any single rude, dismissive or ignoring contact seen","spec":false,"crit":false}]},{"id":"delivery","name":"Delivery","grp":"Operations","cat":"delivery","inferred":false,"checks":[{"id":"delivery-0","q":"Delivery inside 20 minutes","lk":"check today's delivery tickets: orders delivered within 20:00 (same standard as daily check D8); no packed order waiting more than 5 minutes for a rider","rf":"any order over 20 minutes with no reason noted, or packed food sitting over 5 minutes","spec":false,"crit":false},{"id":"delivery-1","q":"Packaging integrity","lk":"sealed, intact, heat retained, no spill","rf":"leaking, crushed, cold on arrival","spec":false,"crit":false},{"id":"delivery-2","q":"Driver presentation","lk":"driver in the company uniform items on the grooming card, delivery bag zipped and carried flat, polite handover","rf":"listed uniform item missing or dirty, bag open or tilted, or a rude handover","spec":false,"crit":false},{"id":"delivery-3","q":"Order completeness","lk":"all items, sides, add-ons and dips present","rf":"missing items","spec":false,"crit":false},{"id":"delivery-bag","q":"Thermal bags clean","lk":"inside of delivery bags clean and dry, wiped on a schedule, no grime or food residue","rf":"dirty or smelly bag interiors, no bag-cleaning routine","spec":false,"crit":false}]},{"id":"clean","name":"Cleanliness","grp":"Operations","cat":"clean","inferred":false,"checks":[{"id":"clean-0","q":"Dining area","lk":"tables cleaned within 5 minutes of a guest leaving; floors clean, no litter","rf":"any table left dirty past 5 minutes, litter or sticky floors","spec":false,"crit":false},{"id":"clean-1","q":"Kitchen","lk":"clean surfaces, organised, clean-as-you-go in action","rf":"grime, clutter, build-up","spec":false,"crit":false},{"id":"clean-2","q":"Washrooms","lk":"clean, stocked with soap and paper, no smell on entry","rf":"dirty, unstocked, or a noticeable smell","spec":false,"crit":false},{"id":"clean-3","q":"Storage areas clean","lk":"store rooms clean and tidy, no spills, nothing sitting on the floor","rf":"dirty or chaotic store room, spills, items on the floor","spec":false,"crit":false},{"id":"clean-4","q":"Waste disposal","lk":"bins lidded and emptied before overflowing, waste oil stored and collected properly","rf":"overflowing bins, smells, grease or oil dumped or pooling","spec":false,"crit":false},{"id":"clean-sched","q":"Cleaning schedule in use","lk":"written schedule shows each task, how often, and who; signed off up to date, including deep cleans (hood and ducts, drains)","rf":"no schedule, blank or backdated sign-offs, hood or drains missing from it","spec":false,"crit":false},{"id":"clean-chem","q":"Chemical storage and labelling","lk":"cleaning chemicals kept in their own place away from and never above food or packaging; original or clearly labelled bottles, lids closed","rf":"chemicals above or beside food, unlabelled spray bottles, chemicals in drink bottles","spec":false,"crit":false}]},{"id":"grooming","name":"Staff Grooming","grp":"Operations","cat":"staff","inferred":false,"checks":[{"id":"grooming-0","q":"Uniform","lk":"the uniform items listed on the grooming card, clean and complete","rf":"any listed item missing, dirty, or non-standard","spec":false,"crit":false},{"id":"grooming-1","q":"Name badge","lk":"worn and visible","rf":"missing","spec":false,"crit":false},{"id":"grooming-2","q":"Hair restraint","lk":"cap or net on, hair tied back","rf":"loose hair, no cap","spec":false,"crit":false},{"id":"grooming-3","q":"Personal cleanliness","lk":"spot-check 3 line staff: hands and nails clean and short, no jewellery except a plain band, no strong scent near food","rf":"any of the 3 failing the hand/nail check, jewellery on the line, or strong perfume","spec":false,"crit":false}]},{"id":"inventory","name":"Inventory & Stock","grp":"Operations","cat":"inventory","inferred":false,"checks":[{"id":"inventory-0","q":"Variance within written tolerance","lk":"last count sheet vs the system report: every top-10 item within the written company tolerance (e.g. ±2% by value); gaps have a written explanation","rf":"any item outside tolerance with no explanation, or no count done this week","spec":false,"crit":false},{"id":"inventory-1","q":"Stored stock date-marked","lk":"every opened or decanted ingredient marked with its open date; supplier expiry visible on cases","rf":"unmarked opened stock, expiry hidden or removed","spec":false,"crit":false},{"id":"inventory-2","q":"Storage compliance","lk":"items labelled and sealed, kept in the correct temperature zone","rf":"unlabelled or open items, food in the wrong temp zone","spec":false,"crit":false},{"id":"inventory-3","q":"Spot-count matches system","lk":"count 5 high-value items (cheese, chicken, boxes): all within tolerance of system stock","rf":"any spot-counted item outside tolerance vs the system","spec":false,"crit":false},{"id":"kitchen-4","q":"Waste control","lk":"waste logged with reasons, portioning tight, waste level explained","rf":"untracked waste, over-portioning, unexplained high waste","spec":false,"crit":false},{"id":"inv-trace","q":"Supplier and traceability records","lk":"stock only from the approved supplier list; delivery notes and invoices on file; decanted or prepped items carry a date or batch mark so product can be traced back","rf":"stock from unknown suppliers, no delivery records, decanted food with no date or batch mark","spec":false,"crit":false}]},{"id":"hsf","name":"Health, Safety & Fire","grp":"Operations","cat":null,"inferred":false,"checks":[{"id":"hsf-fire","q":"Extinguishers and exits","lk":"extinguishers present, in date and unblocked; exits clear and unlocked during working hours","rf":"missing or expired extinguishers, blocked or locked exits","spec":false,"crit":false},{"id":"hsf-hood","q":"Hood and duct grease","lk":"extraction hood and visible ducting free of heavy grease build-up; on the deep-clean schedule","rf":"greasy hood or ducts, not on any cleaning schedule","spec":false,"crit":false},{"id":"hsf-gas","q":"Gas and electrical basics","lk":"staff know the gas shut-off location; cylinders stored upright away from flame; no loose or taped wiring near water","rf":"nobody knows the gas shut-off, cylinders by the fryers, damaged wiring","spec":false,"crit":false},{"id":"hsf-aid","q":"First aid kit","lk":"stocked kit with waterproof dressings, easy to reach, staff know where it is","rf":"kit missing or empty, no waterproof dressings, staff cannot find it","spec":false,"crit":false}]},{"id":"cx","name":"Customer Experience","grp":"Operations","cat":null,"inferred":false,"checks":[{"id":"cx-0","q":"Guest feedback at target","lk":"desk-pack feedback summary: average rating at or above the owner's target with at least 10 responses this month","rf":"below target or fewer than 10 responses; N/A only if the desk pack is missing (write why in the note)","spec":false,"crit":false},{"id":"cx-1","q":"Complaint log current and actioned","lk":"complaint log kept at the branch and up to date; this month's count (desk pack) not higher than last month's; every entry has an action note","rf":"no log, count rising, or entries without an action note","spec":false,"crit":false},{"id":"cx-2","q":"Online rating at target, reviews answered","lk":"desk pack shows the current Google rating at or above the owner's target and no review unanswered more than 7 days","rf":"rating below target or a review unanswered over 7 days; N/A only if the desk pack is missing","spec":false,"crit":false},{"id":"cx-3","q":"Mystery shop meets benchmark","lk":"latest mystery-shop report in the desk pack: score at or above the written benchmark","rf":"below benchmark, or the same issue in the last two reports; N/A if no shop was done this quarter","spec":false,"crit":false}]}];window.__FO_BAKED_DAILY__=[{"id":"d_hosp","name":"Hospitality","grp":"Brand Standards","cat":null,"inferred":false,"checks":[{"id":"d_hosp-0","q":"Team members smile sincerely and greet guests within 10 seconds","lk":"warm, genuine smile and greeting within 10 seconds of the guest arriving","rf":"guest stands unnoticed, no greeting, forced or absent smile","spec":false,"crit":false},{"id":"d_hosp-1","q":"Guests feel welcomed and seated or acknowledged promptly","lk":"guests welcomed and seated or acknowledged straight away","rf":"left waiting, ignored, or not acknowledged","spec":false,"crit":false},{"id":"d_hosp-2","q":"All contacts are warm, friendly, and genuine","lk":"every staff–guest contact is warm and genuine","rf":"cold, scripted, rushed or indifferent contact","spec":false,"crit":false},{"id":"d_hosp-4","q":"Team members anticipate needs and exceed expectations","lk":"Yes only if at least one unprompted act is seen during the visit — a refill, extra sauce or napkins, or help offered BEFORE the guest asks","rf":"no unprompted act seen the whole visit; guests must ask for everything they get","spec":false,"crit":false},{"id":"d_hosp-3","q":"Team members engage and thank guests throughout the visit","lk":"staff check in during the visit and thank guests on the way out","rf":"no engagement after ordering, guests leave unthanked","spec":false,"crit":false},{"id":"d_hosp-5","q":"Guest feedback program is active","lk":"feedback being collected and reviewed (QR, cards, calls)","rf":"no feedback captured, program dormant","spec":false,"crit":false}]},{"id":"d_sos","name":"Speed of Service","grp":"Brand Standards","cat":null,"inferred":false,"checks":[{"id":"d_sos-0","q":"Food is delivered to guests within promised time","lk":"orders out within the promised or quoted time","rf":"guests waiting past the promised time","spec":false,"crit":false},{"id":"d_sos-1","q":"Delivery total time is 20:00 or less","lk":"total delivery time 20 minutes or under","rf":"delivery times running over 20 minutes","spec":false,"crit":false},{"id":"d_sos-2","q":"Guests' orders are accurate and hot","lk":"orders correct and served hot","rf":"wrong items, or food arriving cold","spec":false,"crit":false},{"id":"d_sos-3","q":"Guests receive their meals in the correct order","lk":"meals delivered in the right sequence, a table served together","rf":"some served while others wait, courses out of order","spec":false,"crit":false},{"id":"d_sos-4","q":"Manager is visible and monitors speed of service","lk":"manager on the floor watching and driving service speed","rf":"no manager presence, bottlenecks unmanaged","spec":false,"crit":false}]},{"id":"d_clean","name":"Cleanliness","grp":"Brand Standards","cat":null,"inferred":false,"checks":[{"id":"d_clean-0","q":"Dining room and restrooms are clean and well-maintained","lk":"dining and restrooms clean, tidy and in good repair","rf":"dirty tables or floors, unclean or damaged restrooms","spec":false,"crit":false},{"id":"d_clean-1","q":"Dining room and restrooms are free of clutter","lk":"no clutter, boxes or stray items in guest areas","rf":"clutter, stock or bins in view","spec":false,"crit":false},{"id":"d_clean-2","q":"Restrooms are cleaned stocked and ready","lk":"soap, paper and towels stocked, restroom are clean ready for guests","rf":"dirty or wet restroom, empty dispensers, out of order, no supplies","spec":false,"crit":false},{"id":"d_clean-3","q":"Exterior of the restaurant is clean","lk":"frontage, entrance and car park clean and litter-free","rf":"litter, dirty signage, overflowing outside bins","spec":false,"crit":false},{"id":"d_clean-4","q":"Back of house is clean","lk":"kitchen, prep and store areas clean and organised","rf":"grease build-up, clutter or spills in back of house","spec":false,"crit":false},{"id":"d_clean-5","q":"Kitchen equipment is clean","lk":"equipment and surfaces clean and sanitised","rf":"food debris, grime or grease on equipment","spec":false,"crit":true},{"id":"xmtfxt62r4u3","q":"Kitchen Floor is clean ","lk":"The kitchen floor has been cleaned and the waste basket liners have been changed.","rf":"Kitchen floor was dirty and waste basket liners were not changed","spec":false,"crit":true},{"id":"xmtfzkt0ztx8","q":"The store is clean, and all items are properly stored as per standard","lk":"Clean and well-organized store with proper storage of all items","rf":"Poor store cleanliness and improper storage of items","spec":false,"crit":true}]},{"id":"d_food","name":"Food Quality","grp":"Brand Standards","cat":null,"inferred":false,"checks":[{"id":"d_food-0","q":"Food is fresh, hot, and prepared to standard of food quality ","lk":"Fresh, hot food prepared according to SOPs","rf":"cold, stale, or off-spec","spec":false,"crit":false},{"id":"d_food-1","q":"Food maintains quality throughout the meal","lk":"holds temperature and quality to the last bite","rf":"goes cold, soggy or dries out quickly","spec":false,"crit":true},{"id":"d_food-2","q":"Guests' orders are accurate and well prepared","lk":"order correct and carefully made","rf":"wrong items, careless preparation","spec":false,"crit":true},{"id":"d_food-3","q":"Food looks great and is well presented","lk":"neat, appetising presentation to standard","rf":"messy or sloppy plating","spec":false,"crit":true},{"id":"d_food-4","q":"Sandwiches build and wrap to standard","lk":"sandwiches and wraps built and wrapped to the card","rf":"off-spec build, loose or messy wrap","spec":false,"crit":false},{"id":"d_food-5","q":"All ingredients are being used and stored according to food quality standards","lk":"cheese, sauces, vegetables, chicken, and buns stored and used according to food quality standards","rf":"Improper storage and handling of ingredients","spec":false,"crit":true},{"id":"d_food-6","q":"Products delivered meet or exceed quality expectations","lk":"products checked at the guest table or in the sealed delivery bag: still hot, intact and presentable when the guest receives them","rf":"product below standard at the point of receipt, even if it left the kitchen correct","spec":false,"crit":false},{"id":"d_food-7","q":"Sides are hot, cooked well, and tasty","lk":"sides hot, cooked properly and tasty","rf":"cold, under- or overcooked, or bland sides","spec":false,"crit":true},{"id":"xmtfxy8bx5xg","q":"Yesterday’s dough is not being used and has been discarded as waste","lk":"Proper disposal of leftover dough as per the MRD/SOP","rf":"Yesterday’s dough is being used and has not been discarded","spec":false,"crit":true},{"id":"xmtfy2aky3vw","q":"All vegetables are fresh and properly stored according to SOPs","lk":"Fresh vegetables are being used, and proper SOPs are being followed for cutting and storage","rf":"Improper vegetable cutting and storage.","spec":false,"crit":true}]},{"id":"d_profit","name":"Profitability & Shift Management","grp":"Brand Standards","cat":null,"inferred":false,"checks":[{"id":"d_profit-0","q":"Suggestive selling is used effectively to increase sales","lk":"upsells and add-ons offered naturally and consistently","rf":"no suggestive selling happening","spec":false,"crit":false},{"id":"d_profit-1","q":"All menu items are available","lk":"full menu available, no items out of stock or switched off in the POS","rf":"items out of stock or unavailable","spec":false,"crit":false},{"id":"d_profit-2","q":"POP materials are current and positioned properly to drive sales","lk":"current promo and POP materials up and well placed","rf":"outdated, missing or poorly placed POP","spec":false,"crit":false},{"id":"d_profit-3","q":"Management communication is present and effective","lk":"clear shift briefing and communication happening","rf":"no direction, poor communication","spec":false,"crit":false},{"id":"d_profit-4","q":"Team-level hourly sales are present and in use","lk":"hourly sales targets visible and used to steer the shift","rf":"no hourly sales tracking in use","spec":false,"crit":false}]},{"id":"d_train","name":"Training","grp":"Brand Standards","cat":null,"inferred":false,"checks":[{"id":"d_train-0","q":"This restaurant completes at least four shifts of training per month","lk":"training log shows on-track pace: at least one training shift completed per week elapsed this month","rf":"behind pace for the date, or no training log kept","spec":false,"crit":false},{"id":"d_train-1","q":"Scheduled matches are completed on time","lk":"scheduled training matches done on time","rf":"overdue or skipped","spec":false,"crit":false},{"id":"d_train-2","q":"Manager follows up after operations and implements action","lk":"manager reviews operations and acts on the findings","rf":"no follow-up or action taken","spec":false,"crit":false},{"id":"d_train-3","q":"Manager follows up with new team members within 30 days","lk":"new starters reviewed within 30 days","rf":"new hires not followed up in 30 days","spec":false,"crit":false},{"id":"d_train-4","q":"Team member performance scorecards are used","lk":"performance scorecards kept and used","rf":"no scorecards in use","spec":false,"crit":false}]},{"id":"d_repair","name":"Repair & Maintenance","grp":"Brand Standards","cat":null,"inferred":false,"checks":[{"id":"d_repair-0","q":"Exterior is well maintained","lk":"signage, paint, lighting and frontage in good repair","rf":"broken signage or lights, damage or wear outside","spec":false,"crit":false},{"id":"d_repair-1","q":"Dining room and entry areas are well maintained","lk":"furniture, doors, floors and fittings in good order","rf":"broken or wobbly furniture, damaged fittings","spec":false,"crit":false},{"id":"d_repair-2","q":"Restrooms are well maintained","lk":"fixtures, doors and plumbing working and undamaged","rf":"leaks, broken fixtures or faults","spec":false,"crit":false},{"id":"d_repair-3","q":"Back of house is well maintained","lk":"back-of-house structure, storage and fittings in good repair","rf":"damage or disrepair in back of house","spec":false,"crit":false},{"id":"d_repair-4","q":"Required equipment is present and well maintained","lk":"all required equipment present and working","rf":"missing or faulty equipment","spec":false,"crit":false}]},{"id":"d_safety","name":"Food Safety","grp":"Food Safety","cat":null,"inferred":false,"checks":[{"id":"d_safety-0","q":"Required hand washing procedures are followed","lk":"staff washing hands correctly at the right times","rf":"skipped or improper handwashing","spec":false,"crit":true},{"id":"d_safety-2","q":"Hot water is available","lk":"hot water at sinks and handwash stations","rf":"no or insufficient hot water","spec":false,"crit":true},{"id":"d_safety-3","q":"Proper food storage procedures (hot and cold) are followed","lk":"hot ≥63°C, cold ≤5°C, frozen ≤−18°C, stored correctly","rf":"food in the danger zone or stored wrongly","spec":false,"crit":true},{"id":"d_safety-4","q":"Sanitizing solution is properly used for staff or equipments","lk":"sanitiser at correct strength and used often enough","rf":"wrong strength, or not being used","spec":false,"crit":true},{"id":"d_safety-5","q":"Cutting boards are clean and properly use as per standard ","lk":"boards clean, colour-separated and used as per standard ","rf":"dirty, cross-used or badly store","spec":false,"crit":true},{"id":"d_safety-6","q":"All utensils are clean, sanitized, and stored properly","lk":"utensils clean, sanitised and correctly stored","rf":"dirty or improperly stored utensils","spec":false,"crit":true},{"id":"d_safety-7","q":"Cross-contamination is not observed","lk":"raw and ready-to-eat kept fully separate","rf":"raw over ready-to-eat food, shared boards or tools","spec":false,"crit":true},{"id":"d_safety-8","q":"Effective pest control is in place","lk":"no pest activity; controls and proofing in place","rf":"pest signs, gaps, or no control program","spec":false,"crit":true},{"id":"d_safety-10","q":"No critical food safety violations are present","lk":"no critical violations found on the visit","rf":"any critical food-safety violation present","spec":false,"crit":true},{"id":"xmtfynh4q26q","q":"Kitchen staff are wearing gloves and following proper handwashing practices","lk":"Proper glove use and regular handwashing by kitchen staff","rf":"Improper handwashing and glove usage","spec":false,"crit":true},{"id":"xmtfysqbhip9","q":"No expired items found in the kitchen or store, and FEFO/FIFO is being properly followed","lk":"Proper FEFO/FIFO implementation and regular expiry checks in kitchen and store","rf":"Expired items or improper FEFO/FIFO implementation","spec":false,"crit":true},{"id":"xmtfyumj44tq","q":"Kitchen staff maintained proper personal hygiene, with clean nails, hair, and uniforms","lk":"Good personal hygiene, including clean nails, hair, and proper uniform","rf":"Poor personal hygiene and improper staff grooming","spec":false,"crit":true},{"id":"xmtfyylmp45h","q":"Previous violations have been addressed, and food safety standards and SOPs are being followed","lk":"No repeat violations in food handling, storage, hygiene, and SOP compliance","rf":"Repeat violations in food handling, storage hygiene or SOP compliance","spec":false,"crit":true}]}];window.__FO_BAKED_WH__=[{"id":"wh_goods","name":"Goods-in & Receiving","grp":"Warehouse Operations","cat":"wh_goods","inferred":false,"checks":[{"id":"whg-0","q":"Approved supplier list in use","lk":"all incoming stock from the written approved-supplier list, available at goods-in","rf":"stock accepted from suppliers not on the list","spec":false,"crit":false},{"id":"whg-1","q":"Halal certificates on file","lk":"every meat/chicken supplier's Halal certificate (accredited certification body) on file and in date","rf":"meat of unknown source received, or a missing or expired certificate for a supplier in use","spec":false,"crit":true},{"id":"whg-2","q":"Delivery vehicle condition","lk":"incoming vehicles clean inside; chilled and frozen loads arrive in refrigerated or properly insulated transport","rf":"dirty vehicle, cold load arriving on an open truck","spec":false,"crit":false},{"id":"whg-3","q":"Temperature at receipt","lk":"chilled probed ≤5°C and frozen at or below −15°C on arrival, moved straight to −18°C storage; readings written on the receiving record","rf":"chilled above 5°C or frozen part-thawed accepted into stock, or no temperature taken","spec":true,"crit":false},{"id":"whg-4","q":"Rejection rule and log","lk":"written rejection criteria at goods-in (temperature, damage, expiry, no label, no Halal cert); rejection log with entries and actions","rf":"no rejection criteria, damaged or expired goods accepted, empty rejection log despite visible problem stock","spec":false,"crit":false},{"id":"whg-5","q":"Receiving records complete","lk":"last 7 days of receiving records: date, supplier, item, temperature for chilled/frozen, signature","rf":"gaps, unsigned entries, or no temperatures recorded","spec":false,"crit":false}]},{"id":"wh_cold","name":"Cold Chain","grp":"Warehouse Operations","cat":"wh_cold","inferred":false,"checks":[{"id":"whc-0","q":"Chilled storage at or below 5°C","lk":"probe 3 points in each chiller (door, middle, back): all ≤5°C","rf":"any chiller point or chilled product above 5°C","spec":false,"crit":true},{"id":"whc-1","q":"Frozen storage at or below −18°C","lk":"freezer display ≤−18°C and one probed pack hard frozen","rf":"above −18°C, heavy frost build-up hiding true temperature","spec":false,"crit":false},{"id":"whc-2","q":"No thawed or refrozen product","lk":"no soft, part-thawed or refrozen packs (large ice crystals, clumping, misshapen packs) anywhere in the freezers","rf":"thawed product refrozen or held for use — answer No AND tick the Expired product gate box","spec":false,"crit":true},{"id":"whc-3","q":"Twice-daily temperature logs","lk":"chiller and freezer logs completed twice daily, last 7 days, in range, signed; out-of-range entries show the action taken","rf":"gaps, identical copied numbers, or out-of-range entries with no action","spec":false,"crit":false},{"id":"whc-4","q":"Probe thermometer available and calibrated","lk":"working probe with sanitiser wipes; accuracy checked weekly in iced water (0°C ±1°C) and logged","rf":"no probe, flat battery, no calibration record","spec":false,"crit":false},{"id":"whc-5","q":"Breakdown and out-of-range procedure known","lk":"ask one staff member: they can state what happens when a unit fails or reads high (who to call, where stock moves, when stock is discarded)","rf":"nobody can state the procedure, no plan for a failed cold room","spec":false,"crit":false},{"id":"whc-6","q":"Door discipline and cold-room condition","lk":"cold-room doors kept closed, strip curtains intact, door seals sound, evaporators not iced over","rf":"doors propped open, torn curtains, iced-up or dripping units","spec":false,"crit":false}]},{"id":"wh_store","name":"Storage & Stock Control","grp":"Warehouse Operations","cat":"wh_store","inferred":false,"checks":[{"id":"whs-0","q":"FIFO / FEFO respected","lk":"earliest use-by picked first; new stock put away behind old","rf":"newer stock in front, older stock bypassed and going out of date","spec":false,"crit":false},{"id":"whs-1","q":"Date and batch marking","lk":"every opened, decanted or repacked item marked with date and batch; supplier expiry visible on cases","rf":"unmarked repacked stock, expiry hidden or removed","spec":false,"crit":false},{"id":"whs-2","q":"No expired stock in pickable locations","lk":"spot-check at least 10 dated items across chilled, frozen and dry: nothing past use-by available for dispatch","rf":"any expired item in a pickable location — answer No AND tick the Expired product gate box","spec":false,"crit":true},{"id":"whs-3","q":"Quarantine and write-off control","lk":"marked quarantine area for damaged, expired or recalled stock; write-off log with reasons and sign-off","rf":"no quarantine area, expired or damaged stock mixed with good stock, no write-off record","spec":false,"crit":false},{"id":"whs-4","q":"Raw / ready-to-eat segregation","lk":"raw meat stored below and fully separate from ready-to-eat and packaging in every chiller and freezer","rf":"raw meat above or touching ready-to-eat stock or packaging","spec":false,"crit":true},{"id":"whs-5","q":"Off-floor, sealed storage","lk":"everything at least 15 cm off the floor on pallets or racking, bags and cases sealed or covered; dry store below 25°C, no damp","rf":"cartons on the floor, open bags, damp or hot dry store","spec":false,"crit":false},{"id":"whs-6","q":"Chemicals stored away from food","lk":"chemicals and cleaning stock in their own area, never above or beside food or packaging, in labelled containers","rf":"chemicals stored over or against food or packaging, unlabelled decanted chemicals","spec":false,"crit":false},{"id":"whs-7","q":"Spot-count matches system","lk":"count 5 high-value items: all within the written tolerance vs system stock; gaps have a written explanation","rf":"any spot-counted item outside tolerance unexplained, or no counting routine","spec":false,"crit":false}]},{"id":"wh_pest","name":"Pest Control","grp":"Warehouse Operations","cat":"wh_pest","inferred":false,"checks":[{"id":"whp-0","q":"No pest evidence","lk":"check racking backs, corners, drains and dock areas: no droppings, gnaw marks, insects, birds or nesting","rf":"any live pest, droppings, gnawing or nesting — answer No AND tick the Pest activity gate box","spec":false,"crit":true},{"id":"whp-1","q":"Proofing intact","lk":"door seals and brush strips sound, no gaps to outside, screens intact, dock doors closed when not loading","rf":"daylight visible under doors, holes in walls or screens, dock doors left open","spec":false,"crit":false},{"id":"whp-2","q":"Bait stations mapped and intact","lk":"numbered bait stations match the station map, all present, intact and undisturbed","rf":"missing, moved or damaged stations, no station map","spec":false,"crit":false},{"id":"whp-3","q":"Pest contractor records current","lk":"pest-control visit reports on file and current; findings actioned; fumigation records kept where fumigation is done","rf":"no contractor records, overdue visits, findings never actioned","spec":false,"crit":false}]},{"id":"wh_hyg","name":"Hygiene & Staff","grp":"Warehouse Operations","cat":"wh_hyg","inferred":false,"checks":[{"id":"whh-0","q":"Cleaning schedule in use","lk":"written schedule covering floors, racking, cold-room fans and drains with sign-offs up to date, including deep cleans","rf":"no schedule, blank or backdated sign-offs","spec":false,"crit":false},{"id":"whh-1","q":"Floors and racking clean","lk":"floors clean and dry, no spills or residue build-up under racking or behind pallets","rf":"spills left down, waste or residue accumulating","spec":false,"crit":false},{"id":"whh-2","q":"Handwash facilities stocked","lk":"soap, running water and paper towels at wash points; working and reachable","rf":"no soap or towels, wash point blocked or broken","spec":false,"crit":false},{"id":"whh-3","q":"Fitness for work","lk":"no one with vomiting, diarrhoea, fever or infected cuts handling open food or production; cuts covered with waterproof dressings","rf":"staff working while ill on food or production tasks, uncovered wounds","spec":false,"crit":true},{"id":"whh-4","q":"Training and medical records","lk":"food handlers have hygiene training and medical test records on file at the site (FS&HFA levels where available)","rf":"no training or medical records for warehouse food handlers","spec":false,"crit":false},{"id":"whh-5","q":"Workwear and PPE","lk":"clean workwear; hair restraint worn in any production area; cold-room jackets and gloves available and used","rf":"dirty workwear, no hair restraint in production, staff avoiding cold rooms for lack of PPE","spec":false,"crit":false}]},{"id":"wh_disp","name":"Dispatch & Distribution","grp":"Warehouse Operations","cat":"wh_disp","inferred":false,"checks":[{"id":"whd-0","q":"Pick accuracy","lk":"check 3 picked branch orders against their order sheets: items and quantities match","rf":"any wrong item or quantity in the 3 checked orders","spec":false,"crit":false},{"id":"whd-1","q":"Dispatch temperatures checked and recorded","lk":"chilled probed ≤5°C and frozen hard at loading; reading recorded per trip before the vehicle leaves","rf":"chilled or frozen dispatched above limits, or no dispatch temperature record","spec":false,"crit":true},{"id":"whd-2","q":"Vehicle cleanliness and temperature control","lk":"load area clean and dry; refrigerated unit running or insulated boxes with ice packs pre-cooled for cold items","rf":"dirty load area, cold items on an unrefrigerated open load","spec":false,"crit":false},{"id":"whd-3","q":"Crates and transit protection","lk":"crates clean, food covered or sealed in transit, raw meat never over ready-to-eat in the same load","rf":"dirty crates, open food in transit, raw loaded above ready-to-eat","spec":false,"crit":false},{"id":"whd-4","q":"Transit time rule","lk":"cold items dispatched within the written transit window for each branch route; longest route stated on the dispatch sheet","rf":"no transit window defined, cold food on multi-stop runs beyond it","spec":false,"crit":false},{"id":"whd-5","q":"Dispatch records complete","lk":"per trip: what went to which branch, quantities, batch/date marks, departure time, signature","rf":"no dispatch record, or records missing batch or destination","spec":false,"crit":false}]},{"id":"wh_prod","name":"Central Production","grp":"Warehouse Operations","cat":"wh_prod","inferred":false,"checks":[{"id":"whpr-0","q":"Production to SOP","lk":"dough mixing and panning follow the SOP cards (FO-SOP-09, FO-SOP-03A); sauce batching per its spec; SOPs present at the station","rf":"working from memory, SOPs missing, steps skipped (mark the whole section N/A if this site does no production)","spec":false,"crit":false},{"id":"whpr-1","q":"Batch records and labelling","lk":"every batch labelled with product, production date/time, use-by and batch code before storage or dispatch; batch log kept","rf":"unlabelled batches, no use-by on produced items, no batch log","spec":false,"crit":false},{"id":"whpr-2","q":"Cook temperature verification","lk":"cooked components (sauces etc.) probed ≥75°C at the end of cooking and recorded per batch","rf":"no probe check on cooked batches, no record","spec":false,"crit":false},{"id":"whpr-3","q":"Cooling of cooked batches","lk":"hot batches cooled in shallow containers and into the chiller within 90 minutes, ≤5°C before covering; cooling start time on the label","rf":"stockpots cooling at room temperature or overnight, batches still warm in the chiller","spec":false,"crit":true},{"id":"whpr-4","q":"Production hygiene","lk":"production area clean-as-you-go, food-contact surfaces cleaned and sanitised between batches, equipment clean","rf":"dirty mixers or tables, residue from earlier batches, no sanitising step","spec":false,"crit":false},{"id":"whpr-5","q":"Production equipment and scales","lk":"mixers and equipment working; scales checked with a check-weight on a schedule and the check logged","rf":"faulty equipment in use, scales never verified","spec":false,"crit":false},{"id":"whpr-6","q":"Allergen and ingredient control in production","lk":"allergen ingredients sealed, labelled and scooped with dedicated tools; recipes built from the spec card with the listed ingredients only","rf":"open allergen bags, shared scoops, unlisted ingredient substitutions","spec":false,"crit":false}]},{"id":"wh_doc","name":"Traceability & Documentation","grp":"Compliance","cat":"wh_doc","inferred":false,"checks":[{"id":"whdoc-0","q":"FS&HFA licence for this premises","lk":"the Warehouse's own KP Food Safety & Halal Food Authority licence (storage — plus production if applicable) current and displayed; separate premises need separate licences","rf":"no licence for this site, expired licence, or relying on a branch licence","spec":false,"crit":false},{"id":"whdoc-1","q":"One-up one-down traceability","lk":"pick any item: staff can show which supplier delivery it came from AND which branch received that batch, using the records","rf":"cannot trace a picked item back to a delivery or forward to a branch","spec":false,"crit":false},{"id":"whdoc-2","q":"Recall readiness","lk":"staff can pull all records for a named batch (receiving, storage, dispatch) on request; a recall or trace exercise done within the last 6 months","rf":"records cannot be assembled for a batch, no trace exercise ever done","spec":false,"crit":false},{"id":"whdoc-3","q":"Records retention","lk":"receiving, temperature and dispatch records for at least the last 3 months filed and retrievable","rf":"records discarded, unfiled or missing for past months","spec":false,"crit":false}]},{"id":"wh_safe","name":"Safety & Facility","grp":"Compliance","cat":"wh_safe","inferred":false,"checks":[{"id":"whsf-0","q":"Racking condition and load safety","lk":"racking undamaged and upright, heavy items low, nothing unstable overhead, load limits respected","rf":"bent or struck uprights, overloaded or leaning racking, heavy stock stored high","spec":false,"crit":false},{"id":"whsf-1","q":"Aisles and exits clear","lk":"walkways and fire exits clear and unlocked during working hours","rf":"blocked aisles, locked or obstructed fire exits","spec":false,"crit":false},{"id":"whsf-2","q":"Fire equipment in date","lk":"extinguishers present, in date and accessible","rf":"missing, expired or blocked extinguishers","spec":false,"crit":false},{"id":"whsf-3","q":"First aid kit","lk":"stocked kit with waterproof dressings, easy to reach, staff know where it is","rf":"kit missing or empty, staff cannot find it","spec":false,"crit":false},{"id":"whsf-4","q":"Cold-room and manual-handling safety","lk":"cold-room doors openable from inside, internal release working; trolleys or pallet jacks used for heavy loads","rf":"cold-room release broken, staff carrying heavy loads by hand routinely","spec":false,"crit":false}]}];window.__FO_BAKED_WHDAILY__=[{"id":"wd_temp","name":"Temperatures & Cold Chain","grp":"Warehouse Daily","cat":null,"inferred":false,"checks":[{"id":"wdt-0","q":"Morning chiller reading at or below 5°C","lk":"every chiller checked and logged this morning: all ≤5°C","rf":"any chiller above 5°C, or no morning check done","spec":false,"crit":true},{"id":"wdt-1","q":"Morning freezer reading at or below −18°C","lk":"every freezer checked and logged this morning: all ≤−18°C","rf":"any freezer above −18°C, or no morning check","spec":false,"crit":false},{"id":"wdt-2","q":"No thawed or soft frozen product","lk":"no soft, part-thawed or refrozen packs in the freezers","rf":"any thawed or refrozen product found","spec":false,"crit":true},{"id":"wdt-3","q":"Temperature log up to date today","lk":"today's readings entered and signed on the log","rf":"log blank for today, or filled without measuring","spec":false,"crit":false},{"id":"wdt-4","q":"Cold-room doors and curtains closing properly","lk":"doors self-close and seal, strip curtains intact","rf":"doors propped open, torn or missing curtains","spec":false,"crit":false}]},{"id":"wd_store","name":"Storage & Goods","grp":"Warehouse Daily","cat":null,"inferred":false,"checks":[{"id":"wds-0","q":"No expired product in pickable stock","lk":"spot-check dated items in the pick area: nothing past use-by","rf":"any expired item available for dispatch","spec":false,"crit":true},{"id":"wds-1","q":"FIFO respected in today's picks","lk":"earliest use-by going out first, new stock put away behind old","rf":"new stock picked while older stock sits","spec":false,"crit":false},{"id":"wds-2","q":"Everything off the floor and covered","lk":"no cartons or bags on the floor; open bags sealed or lidded","rf":"stock on the floor, open bags","spec":false,"crit":false},{"id":"wds-3","q":"Raw meat separated from ready-to-eat","lk":"raw meat below and away from ready-to-eat stock in every chiller and freezer","rf":"raw meat above or touching ready-to-eat stock","spec":false,"crit":true},{"id":"wds-4","q":"Chemicals away from food","lk":"chemicals in their own area, labelled, never above or beside food or packaging","rf":"chemicals over or against food, unlabelled bottles","spec":false,"crit":true},{"id":"wds-5","q":"Today's deliveries checked and logged","lk":"every delivery today has temps (chilled/frozen), counts and a signature on the receiving record","rf":"goods put away unchecked, no record for a received delivery","spec":false,"crit":false}]},{"id":"wd_hyg","name":"Hygiene & Pest","grp":"Warehouse Daily","cat":null,"inferred":false,"checks":[{"id":"wdh-0","q":"No pest signs today","lk":"quick walk of corners, racking backs and dock: no droppings, gnawing or insects","rf":"any pest sign found","spec":false,"crit":true},{"id":"wdh-1","q":"Floors clean and dry","lk":"no spills or residue left down; cleaning done per today's schedule","rf":"spills or waste left standing","spec":false,"crit":false},{"id":"wdh-2","q":"Handwash stations stocked","lk":"soap, water and paper towels present and working","rf":"no soap, water or towels at the wash point","spec":false,"crit":true},{"id":"wdh-3","q":"Staff fit for work","lk":"nobody ill (vomiting, diarrhoea, fever) handling open food or production; cuts covered","rf":"anyone working ill on food tasks, uncovered wounds","spec":false,"crit":true},{"id":"wdh-4","q":"Production area clean and batches labelled","lk":"production area clean; every batch made today labelled with date/time and use-by (N/A if no production today)","rf":"dirty production area, unlabelled batches","spec":false,"crit":false}]},{"id":"wd_disp","name":"Dispatch & Safety","grp":"Warehouse Daily","cat":null,"inferred":false,"checks":[{"id":"wdd-0","q":"Dispatch temperatures checked and recorded","lk":"today's outgoing cold loads probed and recorded before leaving","rf":"cold load dispatched unprobed or unrecorded","spec":false,"crit":true},{"id":"wdd-1","q":"Vehicles and boxes clean and pre-cooled","lk":"load areas clean; insulated boxes pre-cooled with ice packs for cold runs","rf":"dirty load area, cold food in warm boxes","spec":false,"crit":false},{"id":"wdd-2","q":"Aisles and fire exits clear","lk":"walkways and fire exits clear and unlocked","rf":"blocked aisle or locked exit","spec":false,"crit":true},{"id":"wdd-3","q":"Racking safe, nothing unstable overhead","lk":"no leaning stacks, heavy items low, damage reported","rf":"unstable or overhanging stock, unreported damage","spec":false,"crit":false},{"id":"wdd-4","q":"Dispatch records complete for today","lk":"every trip today recorded: what went to which branch, batch marks, departure time, signature","rf":"trips missing from the record, no batch marks","spec":false,"crit":false}]}];window.__FO_BAKED_PROFILES__={};window.__FO_BAKED_QSV__={"full":{"base":2,"edits":0},"daily":{"base":2,"edits":1},"wh":{"base":1,"edits":0},"whdaily":{"base":1,"edits":0}};window.__FO_BAKED_ADMIN__={"user":"admin","passHash":"22564d56"};</script>
 <script>
 "use strict";
 var PRISTINE_HTML="<!DOCTYPE html>"+document.documentElement.outerHTML;
@@ -506,10 +491,14 @@ var BAKED_ADMIN=window.__FO_BAKED_ADMIN__||null;
 var BAKED_WH=(window.__FO_BAKED_WH__&&window.__FO_BAKED_WH__.length)?window.__FO_BAKED_WH__:null;
 var BAKED_WHDAILY=(window.__FO_BAKED_WHDAILY__&&window.__FO_BAKED_WHDAILY__.length)?window.__FO_BAKED_WHDAILY__:null;
 var BAKED_PROFILES=window.__FO_BAKED_PROFILES__||null;
-var BAKED_SUBMIT=window.__FO_BAKED_SUBMIT__||null;
 var authed=false;
 var BS=String.fromCharCode(92);
 var STORE_KEY="flameon_ops_audit_v8";
+/* In-progress drafts (state.data) are written under their own key so that every tap stores ~20 KB
+   instead of the whole state (history + question sets, easily 1 MB+). Chrome throttles localStorage
+   commits per origin per hour; hammering it with megabytes per tap left changes sitting uncommitted,
+   and Android killing the tab while the camera was open then lost them — the "have to re-audit" bug. */
+var DRAFT_KEY="flameon_ops_audit_v8_drafts", RESUME_KEY="flameon_ops_audit_resume", SEEN_KEY="flameon_ops_audit_seen";
 var KEY_V7="flameon_ops_audit_v7", KEY_V6="flameon_ops_audit_v6", KEY_V5="flameon_ops_audit_v5";
 var BACKUP_V7_KEY="flameon_ops_audit_backup_v7", BACKUP_V6_KEY="flameon_ops_audit_backup_v6", BACKUP_V5_KEY="flameon_ops_audit_backup_v5";
 var OVERVIEW="__overview__", FINDINGS="__findings__", DASH="__dashboard__", ADMIN="__admin__", HISTORY="__history__", CAPAREG="__capa__";
@@ -525,19 +514,7 @@ var ALLCATN = {}; (function(){ Object.keys(CATNAMES).forEach(function(c){ALLCATN
 /* ---- Questionnaire version stamps EMBEDDED IN THIS FILE — the single source of truth.
    Bump a set's number whenever its DEFAULT content changes in a shipped file; devices
    holding an older cached questionnaire sync to this on load (see syncQsOnBoot). ---- */
-var APP_BUILD="v8.1 (2026-08-17)";
-
-/* ---- HQ submission (v8.1) ----
-   Head office endpoint every installed copy posts completed audits to. Fill SUBMIT_URL in
-   before publishing the site and every auditor is configured on first open; Admin → "Head-office
-   submission" can still override it per device. The token is a shared secret, not real auth: it
-   only stops stray/accidental posts — anyone with the app can read it. Real protection is that
-   the endpoint only ever APPENDS. */
-var SUBMIT_URL="";           /* Apps Script /exec URL — see apps-script/Code.gs + DEPLOY.md */
-var SUBMIT_TOKEN="";         /* must match SHARED_TOKEN in Code.gs */
-var SUBMIT_TIMEOUT_MS=120000;
-var SUBMIT_PHOTO_BUDGET=6*1024*1024; /* stop attaching photos past this, so a 12-photo audit still uploads on a branch 3G link */
-var SUBMIT_DEFAULTS={ url:SUBMIT_URL, token:SUBMIT_TOKEN, photos:true, auto:true };
+var APP_BUILD="v8.0.5 (2026-09-26)";
 var QS_FILE={ full:2, daily:2, wh:1, whdaily:1 };
 var SETNAMES={ full:"Full audit (restaurant)", daily:"Daily checks (restaurant)", wh:"Warehouse audit", whdaily:"Warehouse daily checks" };
 /* ---- Branch -> questionnaire profile. Admin-configurable via state.branchProfiles. ---- */
@@ -546,7 +523,7 @@ var PROFILES={ restaurant:"Restaurant", warehouse:"Warehouse / central store" };
 var CRITICAL = ["Undercooked chicken / protein","Expired product in use or storage","Pest activity","Missing HACCP / food-safety records","Foreign object found in food","Verified food-poisoning complaint","Deliberate SOP violation"];
 var BRANCHES = ["Abbottabad Main Branch","Delco","Murree Road Branch","Haripur Branch","Warehouse"];
 var CAPA_STATUSES=["Open","In Progress","Verified Closed"];
-var PHOTO_CAP=12, PHOTO_MAX_BYTES=200*1024, PHOTO_MAX_DIM=1280;
+var PHOTO_CAP=50, PHOTO_MAX_BYTES=200*1024, PHOTO_MAX_DIM=1280; /* photos live in IndexedDB, not localStorage — the cap only bounds the backup file size */
 var TREND_WINDOW=12; /* most recent audits per branch shown on the trend chart */
 
 var TYPE_ORDER=["daily","weekly","monthly","quarterly"];
@@ -1130,7 +1107,6 @@ var DASH_FROM="", DASH_TO=""; /* dashboard date-range filter (transient) */
 
 function blank(){ return { schemaVersion:8, config:null, dconfig:null, wconfig:null, wdconfig:null, admin:null, settings:{capaDueDays:7}, branchProfiles:{},
   qsMeta:{ full:{base:QS_FILE.full,edits:0}, daily:{base:QS_FILE.daily,edits:0}, wh:{base:QS_FILE.wh,edits:0}, whdaily:{base:QS_FILE.whdaily,edits:0} },
-  submit:Object.assign({}, SUBMIT_DEFAULTS, BAKED_SUBMIT||{}), submitQueue:[],
   auditType:"weekly", dashType:"weekly", currentBranch:"", data:{daily:{},weekly:{},monthly:{},quarterly:{}}, history:[], active:OVERVIEW }; }
 /* Merge stored/imported state over blank(). CRITICAL SUBTLETY: blank() carries THIS FILE's
    qsMeta stamps; if the stored data predates qsMeta (v5/v6/v7), letting blank()'s stamps
@@ -1195,16 +1171,6 @@ function fixup(d){
   });
   if(!d.settings||typeof d.settings!=="object") d.settings={};
   if(!(d.settings.capaDueDays>0)) d.settings.capaDueDays=7;
-  /* v8.1 submission config. A device that has never been configured adopts the file's endpoint;
-     one the auditor/admin has already pointed somewhere keeps its own URL across app updates. */
-  if(!d.submit||typeof d.submit!=="object") d.submit={};
-  if(typeof d.submit.url!=="string"||!d.submit.url) d.submit.url=(BAKED_SUBMIT&&BAKED_SUBMIT.url)||SUBMIT_DEFAULTS.url;
-  if(typeof d.submit.token!=="string"||!d.submit.token) d.submit.token=(BAKED_SUBMIT&&BAKED_SUBMIT.token)||SUBMIT_DEFAULTS.token;
-  if(typeof d.submit.photos!=="boolean") d.submit.photos=SUBMIT_DEFAULTS.photos;
-  if(typeof d.submit.auto!=="boolean") d.submit.auto=SUBMIT_DEFAULTS.auto;
-  if(!Array.isArray(d.submitQueue)) d.submitQueue=[];
-  /* drop queue entries whose record no longer exists (cleared history, restored backup) */
-  d.submitQueue=d.submitQueue.filter(function(q){ return q&&q.recId&&d.history.some(function(h){ return h.id===q.recId; }); });
   if(!(d.qsVersion>0)) d.qsVersion=1;
   if(!(d.dqsVersion>0)) d.dqsVersion=1;
   if(!TYPES[d.auditType]) d.auditType="weekly";
@@ -1217,7 +1183,7 @@ function quarantine(raw){ try{ localStorage.setItem("flameon_ops_audit_corrupt_"
 function load(){
   var raw=readKey(STORE_KEY);
   if(raw!==null){
-    try{ return fixup(mergeState(JSON.parse(raw))); }
+    try{ return fixup(overlayDrafts(mergeState(JSON.parse(raw)))); }
     catch(e){ quarantine(raw); BOOT_CORRUPT=true; }
   }
   var r7=readKey(KEY_V7);
@@ -1252,20 +1218,69 @@ function load(){
   }
   return blank();
 }
+/* Drafts are stored under DRAFT_KEY (see save()); when present they win over whatever the main blob carries. */
+function overlayDrafts(d){
+  var raw=readKey(DRAFT_KEY); if(raw===null) return d;
+  try{ var p=JSON.parse(raw); if(p&&typeof p==="object"&&!Array.isArray(p)) d.data=p; }catch(e){}
+  return d;
+}
+var LAST_MAIN=null, LAST_DRAFT=null;
 function save(){
-  var js;
-  try{ js=JSON.stringify(state); }catch(e){ js=null; }
-  if(js===null){ setBanner("savefail","err","⚠ Internal error while saving — your latest change was NOT stored.","Use ⛃ Backup in the toolbar, then reload."); SAVE_FAILED=true; return; }
+  var main=null, draft=null;
   try{
-    localStorage.setItem(STORE_KEY, js);
+    var d=state.data; state.data={daily:{},weekly:{},monthly:{},quarterly:{}};
+    try{ main=JSON.stringify(state); } finally{ state.data=d; }
+    draft=JSON.stringify(d);
+  }catch(e){ main=null; }
+  if(main===null||draft===null){ setBanner("savefail","err","⚠ Internal error while saving — your latest change was NOT stored.","Use ⛃ Backup in the toolbar, then reload."); SAVE_FAILED=true; return; }
+  try{
+    /* only touch storage for the part that actually changed — a tap normally rewrites just the draft */
+    if(main!==LAST_MAIN){ localStorage.setItem(STORE_KEY, main); LAST_MAIN=main; }
+    if(draft!==LAST_DRAFT){ localStorage.setItem(DRAFT_KEY, draft); LAST_DRAFT=draft; }
+    var total=main.length+draft.length;
     if(SAVE_FAILED){ SAVE_FAILED=false; clearBanner("savefail"); toast("Saving works again — everything is being stored."); }
-    if(js.length*2 > 3.5*1024*1024) setBanner("quota","warn","Audit storage is getting full ("+Math.round(js.length*2/1024)+" KB of a ~5 MB browser limit).","Download a ⛃ Backup, then clear old dashboard history you no longer need.");
+    if((total*2+lsPhotoBytes()) > 3.5*1024*1024) setBanner("quota","warn","Audit storage is getting full ("+Math.round((total*2+lsPhotoBytes())/1024)+" KB of a ~5 MB browser limit).","Tap ⛃ Backup to keep a copy. Then, in History, use ⤓ Audit file on the older audits — that saves them to Downloads and frees their photos from this phone.");
     else clearBanner("quota");
   }catch(e){
-    SAVE_FAILED=true;
-    setBanner("savefail","err","⚠ NOT SAVING — the browser refused to store your data (storage full?). Everything since this message is at risk.","Download a ⛃ Backup from the toolbar NOW, then free space (clear old history) and try again.");
+    /* Out of room. Reclaim photo space that is safe to drop and try once more before alarming the auditor —
+       a failed save here is what silently lost findings and left completed audits re-opening as drafts. */
+    var freed=reclaimLocalPhotoSpace();
+    var ok=false;
+    if(freed>0){
+      try{ localStorage.setItem(STORE_KEY, main); LAST_MAIN=main; localStorage.setItem(DRAFT_KEY, draft); LAST_DRAFT=draft; ok=true; }catch(e2){}
+    }
+    if(ok){
+      if(SAVE_FAILED){ SAVE_FAILED=false; clearBanner("savefail"); }
+      clearBanner("quota");
+      toast("Freed "+Math.round(freed/1024)+" KB of old photo space — saving works again.");
+      schedulePhotoMigration();
+    } else {
+      SAVE_FAILED=true;
+      setBanner("savefail","err","⚠ NOT SAVING — this phone is out of space for audit data. Your latest answers are NOT stored.","Tap ⛃ Backup to keep a copy, then open History and use ⤓ Audit file on older audits (that frees their photos). Do not close this tab first.");
+    }
   }
   updateStorageMeter();
+}
+/* Photos left in the audit-data area by an earlier session on a phone whose photo database was unavailable.
+   Safe to drop here: orphans (nothing references them) and photos of locked audits already written to
+   Downloads as their own file. Returns bytes freed. Synchronous on purpose — save() cannot wait. */
+function reclaimLocalPhotoSpace(){
+  var before=lsPhotoBytes(); if(!before) return 0;
+  var ids=[];
+  try{ for(var i=0;i<localStorage.length;i++){ var key=localStorage.key(i); if(key&&key.indexOf(PHOTO_LS_PREFIX)===0) ids.push(key.slice(PHOTO_LS_PREFIX.length)); } }catch(e){}
+  ids.forEach(function(pid){ if(!photoReferenced(pid)) lsPhotoDel(pid); });
+  if(before-lsPhotoBytes() > 0) return before-lsPhotoBytes();
+  state.history.filter(function(r){ return r.locked && r.exported; })
+    .sort(function(a,b){ return (a.ts||0)-(b.ts||0); })
+    .forEach(function(rec){
+      if(before-lsPhotoBytes() > 0) return;
+      var freed=false;
+      Object.keys(rec.photos||{}).forEach(function(key){
+        (rec.photos[key]||[]).forEach(function(pid){ if(readKey(lsPhotoKey(pid))!==null){ lsPhotoDel(pid); freed=true; } });
+      });
+      if(freed) rec.photosEvicted=true;
+    });
+  return before-lsPhotoBytes();
 }
 function persistConfig(which){
   state.config=SECTIONS; state.dconfig=DSECTIONS; state.wconfig=WSECTIONS; state.wdconfig=WDSECTIONS;
@@ -1480,13 +1495,17 @@ function overdueCount(branch){ return allOpenCapas(branch).filter(function(x){re
 /* ---- Storage meter ---- */
 function updateStorageMeter(){
   var el=document.getElementById("storeMeter"); if(!el) return;
-  var bytes=0; try{ var r=localStorage.getItem(STORE_KEY); bytes=r?r.length*2:0; }catch(e){}
+  var bytes=0; try{ var r=localStorage.getItem(STORE_KEY), r2=localStorage.getItem(DRAFT_KEY); bytes=(r?r.length*2:0)+(r2?r2.length*2:0); }catch(e){}
+  var phb=lsPhotoBytes(); bytes+=phb;
   var LIMIT=5*1024*1024, pct=Math.min(100,Math.round(bytes/LIMIT*100));
   var cls=pct>=80?"full":(pct>=60?"warn":"");
-  var html='Audit data <b>'+(bytes>=1048576?(bytes/1048576).toFixed(1)+' MB':Math.max(1,Math.round(bytes/1024))+' KB</b>')+' of ~5 MB'
-    +'<div class="sb-bar"><i class="'+cls+'" style="width:'+pct+'%"></i></div><span id="sbPhotos">Photos: checking…</span>';
+  var html='Audit data'+(phb?' + photos':'')+' <b>'+(bytes>=1048576?(bytes/1048576).toFixed(1)+' MB':Math.max(1,Math.round(bytes/1024))+' KB</b>')+' of ~5 MB'
+    +'<div class="sb-bar"><i class="'+cls+'" style="width:'+pct+'%"></i></div><span id="sbPhotos">Photos: checking…</span>'
+    +'<div style="margin-top:6px;word-break:break-all">Storage owner: <b>'+esc(location.protocol+"//"+(location.host||""))+'</b> · '+state.history.length+' locked audit'+(state.history.length===1?'':'s')+' here<br><small>'+(HOSTED?'This app runs from one fixed web address, so every audit on this phone is always in this one place.':'Data lives with this owner. Opening the file through a different app (WhatsApp, another file manager) uses a different owner and shows different data.')+'</small></div>';
   el.innerHTML=html;
-  if(navigator.storage&&navigator.storage.estimate){
+  if(PHOTO_CACHE){ var pc=document.getElementById("sbPhotos"); if(pc) pc.textContent="Photos: stored outside the audit data on this phone (the photo database is unavailable here, a backup store is in use)"; }
+  else if(PHOTO_FALLBACK){ var pf=document.getElementById("sbPhotos"); if(pf) pf.textContent="Photos: limited mode on this phone — they share the ~5 MB above ("+Math.round(lsPhotoBytes()/1024)+" KB used). Photos of audits already saved to Downloads are freed automatically."; }
+  else if(navigator.storage&&navigator.storage.estimate){
     navigator.storage.estimate().then(function(est){
       var p=document.getElementById("sbPhotos"); if(!p) return;
       if(est&&est.quota){ p.innerHTML='Photos &amp; app: <b>'+Math.round((est.usage||0)/1048576)+' MB</b> of '+Math.round(est.quota/1048576)+' MB device quota'; }
@@ -1512,9 +1531,11 @@ function renderSidebar(){
     +'<button class="nav-item'+(state.active===FINDINGS?' active':'')+'" data-nav="'+FINDINGS+'"><span class="dot '+(f>0?'flag':'done')+'"></span><span class="nm">Findings &amp; actions</span><span class="badge'+(f===0?' zero':'')+'">'+f+'</span></button>'
     +'<button class="nav-item'+(state.active===CAPAREG?' active':'')+'" data-nav="'+CAPAREG+'"><span class="dot '+(od>0?'flag':'done')+'"></span><span class="nm">CAPA register</span><span class="badge'+(od===0?' zero':'')+'">'+od+'</span></button>'
     +navBtn(ADMIN,"⚙","Edit audit (admin)")
+    +'<button class="nav-item big" data-saveapp="1"><span class="ico">📲</span><span class="nm">Save app to phone</span></button>'
     +'</div>'
     +'<div class="storagebox" id="storeMeter"></div>';
   var sb=document.getElementById("sidebar"); sb.innerHTML=html;
+  sb.querySelectorAll('[data-saveapp]').forEach(function(b){ if(HOSTED&&installedStandalone()){ b.style.display="none"; return; } if(HOSTED) b.querySelector(".nm").textContent="Install app"; b.addEventListener("click", function(){ closeDrawer(); if(HOSTED) doInstall(); else saveAppToDevice(); }); });
   sb.querySelectorAll('[data-nav]').forEach(function(b){ b.addEventListener("click", function(){ state.active=b.dataset.nav; if(b.dataset.nav===HISTORY) VIEW_REC=null; save(); closeDrawer(); renderMain(); renderSidebar(); window.scrollTo(0,0); }); });
   updateStorageMeter();
 }
@@ -1539,7 +1560,9 @@ function renderMain(){
   if(!sec){ needBranch(); return; }
   renderSection(sec);
 }
-function needBranch(){ document.getElementById("main").innerHTML='<div class="dash-empty"><div class="em-ic">🏬</div><p><b>Select a branch</b> at the top to start or continue its '+esc(typeMeta().label.toLowerCase())+'. Each branch keeps its own draft per audit type — switch anytime without losing anything.</p></div>'; }
+function needBranch(){ document.getElementById("main").innerHTML='<div class="dash-empty"><div class="em-ic">🏬</div><p><b>Select a branch</b> at the top to start or continue its '+esc(typeMeta().label.toLowerCase())+'. Each branch keeps its own draft per audit type — switch anytime without losing anything.</p>'
+  +'<div class="saveapp-card"><p><b>Using this on a phone?</b> '+(HOSTED?'Install the app once and open it from the home-screen icon from then on. Your audits stay on this phone and are always in the same place.':'Tap once to save the app into Downloads, then always open it from the Files app → Downloads. Opening it from a WhatsApp chat can lose your work.')+'</p><button class="btn saveapp" data-saveapp="1">📲 Save to phone</button></div></div>';
+  document.querySelectorAll('#main [data-saveapp]').forEach(function(b){ if(HOSTED&&installedStandalone()){ var card=b.closest(".saveapp-card"); if(card) card.style.display="none"; return; } if(HOSTED) b.textContent="📲 Install app"; b.addEventListener("click", function(){ if(HOSTED) doInstall(); else saveAppToDevice(); }); }); }
 
 /* ---- Overview ---- */
 function draftChip(c){
@@ -1630,7 +1653,8 @@ function renderSection(sec){
       +'<div class="rate" role="group" aria-label="Score" data-key="'+key+'">'+rb(key,"yes",v)+rb(key,"no",v)+rb(key,"na",v)+'</div></div>'
       +'<div class="qnote"><input type="text" data-note="'+key+'" value="'+esc((c.notes||{})[key]||"")+'" placeholder="Notes / observation (optional)" aria-label="Note for '+esc(ch.q)+'"></div>'
       +'<div class="qphotos" data-pkey="'+key+'">'+pids.map(function(pid){ return photoThumbHTML(key,pid); }).join("")
-      +'<button class="ph-add" data-addphoto="'+key+'">📷 Photo</button></div></div>';
+      +'<button class="ph-add" data-addphoto="'+key+'" data-src="camera">📷 Camera</button>'
+      +'<button class="ph-add" data-addphoto="'+key+'" data-src="gallery">🖼 Gallery</button></div></div>';
   }).join("");
   var idx=secIndex(sec.id), L=SECS();
   var foot='<div class="secfoot">'
@@ -1649,9 +1673,13 @@ function renderSection(sec){
 function rb(key,v,curv){ var lab=v==="yes"?"Yes":(v==="no"?"No":"N/A"); return '<button data-key="'+key+'" data-v="'+v+'" aria-pressed="'+(curv===v?'true':'false')+'"'+(curv===v?' class="sel"':'')+'>'+lab+'</button>'; }
 function setScore(key,v){
   var a=cur(); if(!a) return;
+  clearResume();
   var secId=key.slice(0,key.indexOf("||")); var sec=getSec(secId); var ch=null;
   if(sec){ for(var i=0;i<sec.checks.length;i++) if(k(sec,sec.checks[i])===key) ch=sec.checks[i]; }
-  if(a.scores[key]===v) delete a.scores[key]; else a.scores[key]=v;
+  /* A repeat tap on the selected answer used to CLEAR the line (toggle). On phones that happened by accident,
+     the finding vanished, "complete anyway?" got confirmed, and the corrective action never reached the record. */
+  if(a.scores[key]===v) return;
+  a.scores[key]=v;
   if(a.scores[key]==="no") ensureCapa(key,ch); else dropAutoCapa(key);
   save();
   document.querySelectorAll('#main .rate button[data-key="'+key+'"]').forEach(function(b){ var on=a.scores[b.dataset.key]===b.dataset.v; b.classList.toggle("sel",on); b.setAttribute("aria-pressed",on?"true":"false"); });
@@ -1664,7 +1692,22 @@ function setScore(key,v){
 function renderFindings(){
   var finds=allFindings();
   var head='<div class="find-head"><h2>Findings &amp; corrective actions</h2><span class="cnt">'+finds.length+' open</span></div>';
-  if(finds.length===0){ document.getElementById("main").innerHTML=head+'<div class="find-none">✓ No findings for '+esc(state.currentBranch)+' ('+esc(typeMeta().short)+'). Every scored line met the standard.</div>'; return; }
+  if(finds.length===0){
+    /* This page edits the IN-PROGRESS audit only. Completed audits keep their findings inside the locked record —
+       list the recent ones here so nobody concludes the findings "were not submitted". */
+    var t0=TYPES[state.auditType]?state.auditType:"weekly";
+    var done=state.history.filter(function(h){ return !h.supersededBy && (h.type||"weekly")===t0 && h.branch===state.currentBranch; })
+      .sort(function(a,b){ return (b.ts||0)-(a.ts||0); }).slice(0,5);
+    var html0=head+'<div class="find-none">✓ No findings in the current (in-progress) '+esc(typeMeta().short.toLowerCase())+' audit for '+esc(state.currentBranch)+'.</div>';
+    if(done.length){
+      html0+='<div class="panel" style="margin-top:14px"><div class="ph">Completed audits — their findings are locked inside each record</div><div class="tablewrap"><table class="capr"><thead><tr><th>Audit</th><th>Result</th><th>Findings</th><th></th></tr></thead><tbody>';
+      done.forEach(function(r){ var cl=recordCapaList(r); html0+='<tr><td>'+esc(r.date||"")+(r.shift?' · '+esc(r.shift):'')+'<div class="cs">'+esc(r.by||"")+'</div></td><td>'+esc(r.grade||"—")+(r.score!=null?' · '+r.score+'%':'')+'</td><td>'+(r.findings||0)+' finding'+((r.findings||0)===1?'':'s')+' · '+cl.length+' corrective action'+(cl.length===1?'':'s')+'</td><td><button class="btn ghost sm" data-openrec="'+r.id+'">Open</button></td></tr>'; });
+      html0+='</tbody></table></div><p class="sec-sub" style="margin:10px 0 0">Every corrective action from completed audits is also in the <b>CAPA register</b> (menu).</p></div>';
+    }
+    document.getElementById("main").innerHTML=html0;
+    document.querySelectorAll('#main [data-openrec]').forEach(function(b){ b.addEventListener("click", function(){ state.active=HISTORY; VIEW_REC=b.dataset.openrec; save(); renderSidebar(); renderMain(); window.scrollTo(0,0); }); });
+    return;
+  }
   var c=cur();
   var cards=finds.map(function(f){
     var key=k(f.sec,f.ch); ensureCapa(key,f.ch); var cp=c.capa[key]; var obs=c.notes[key]||"";
@@ -1723,9 +1766,11 @@ function renderHistory(){
   var t=TYPES[state.auditType]?state.auditType:"weekly";
   var list=state.history.filter(function(h){ return (h.type||"weekly")===t && (!state.currentBranch||h.branch===state.currentBranch); })
     .slice().sort(function(a,b){ return (b.date||"")<(a.date||"")?-1:((b.date||"")>(a.date||"")?1:((b.ts||0)-(a.ts||0))); });
-  var html='<div class="find-head"><h2>Audit history</h2><span class="cnt" style="background:var(--cream-2);color:var(--muted)">'+list.length+'</span></div>'
+  var html='<div class="find-head"><h2>Audit history</h2><span class="cnt" style="background:var(--cream-2);color:var(--muted)">'+list.length+'</span>'
+    +'<button class="btn ghost sm" id="histImport" style="margin-left:auto" title="Bring in an audit file (FO-Audit-….json) saved or shared from any phone">⤒ Import audit file</button><input type="file" id="histImportFile" accept=".json,application/json" style="display:none"></div>'
     +'<p class="sec-sub">Completed '+esc(TYPES[t].label.toLowerCase())+' records'+(state.currentBranch?' for <b>'+esc(state.currentBranch)+'</b> (clear the branch selector to see all branches)':' across all branches')+'. Completed audits are locked — corrections happen through an admin amendment which keeps the original.</p>';
-  if(list.length===0){ html+='<div class="dash-empty"><div class="em-ic">🗂</div><p>Nothing completed yet under this audit type. Fill in a draft and press <b>✓ Complete audit</b> to create the first locked record.</p></div>'; document.getElementById("main").innerHTML=html; return; }
+  var bindImport=function(){ var ib=document.getElementById("histImport"), inf=document.getElementById("histImportFile"); if(ib&&inf){ ib.addEventListener("click", function(){ inf.click(); }); inf.addEventListener("change", function(){ var f=inf.files&&inf.files[0]; if(f) importRecordFile(f); inf.value=""; }); } };
+  if(list.length===0){ html+='<div class="dash-empty"><div class="em-ic">🗂</div><p>Nothing completed yet under this audit type. Fill in a draft and press <b>✓ Complete audit</b> to create the first locked record.</p></div>'; document.getElementById("main").innerHTML=html; bindImport(); return; }
   list.forEach(function(r){
     var band=r.type==="daily"?dailyBand(r.grade):(r.fail?"fail":(r.score!=null?gradeFromScore(r.score).band:"n"));
     var cls=band==="fail"?"fail":band;
@@ -1744,14 +1789,13 @@ function renderRecord(rec){
   var band=isD?dailyBand(rec.grade):(rec.fail?"fail":(rec.score!=null?gradeFromScore(rec.score).band:"n"));
   var html='<div class="rec-toolbar"><button class="btn ghost" id="recBack">← History</button>'
     +'<button class="btn ghost" id="recPrint">🖶 Print this audit</button>'
+    +'<button class="btn ghost" id="recExport" title="Save this audit (with photos) as a file you can share to HQ or import on another phone">⤓ Audit file</button>'
     +(rec.supersededBy?'':'<button class="btn ghost" id="recAmend">✎ Amend (admin)</button>')
-    +(subOn()&&!(rec.sub&&rec.sub.st==="sent")?'<button class="btn ghost" id="recSend">⇪ Send to head office</button>':'')
-    +(subOn()&&rec.sub&&rec.sub.st==="sent"?'<button class="btn ghost" id="recSend" title="Send this audit again — head office keeps the latest copy">⇪ Re-send</button>':'')
     +'</div>'
     +'<div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap"><span class="lockchip">🔒 Locked record</span>'
-    +subChipHTML(rec)
     +(rec.amendment?'<span class="lockchip amend">Amendment of an earlier audit</span>':'')
     +(rec.supersededBy?'<span class="lockchip" style="background:var(--muted)">Superseded by a later amendment</span>':'')+'</div>';
+  if(rec.photosEvicted) html+='<div class="amendnote">Photos for this audit were removed from this phone to make room for a newer audit. The answers and corrective actions are complete. The pictures are in the audit file saved to Downloads ('+esc(recordFileName(rec))+') — import that file to see them again.</div>';
   if(rec.amendment) html+='<div class="amendnote">Amended by admin <b>'+esc(rec.amendment.byAdmin||"")+'</b> at '+esc(rec.amendment.at||"")+' — reason: <b>'+esc(rec.amendment.reason||"")+'</b>. The original record remains in history.</div>';
   html+='<div class="ov-grade"><div class="big'+(isD?' daily':'')+' '+band+'">'+esc(rec.grade||"—")+'</div><div class="gtxt">'
     +'<div class="score">'+(rec.score!=null?rec.score+"%":"—")+'</div><div class="tier">'+esc(rec.tier||"")+'</div>'
@@ -1808,17 +1852,8 @@ function renderRecord(rec){
   document.getElementById("main").innerHTML=html;
   document.getElementById("recBack").addEventListener("click", function(){ VIEW_REC=null; renderMain(); window.scrollTo(0,0); });
   document.getElementById("recPrint").addEventListener("click", function(){ printAudit(rec); });
+  document.getElementById("recExport").addEventListener("click", function(){ exportRecordFile(rec); });
   var am=document.getElementById("recAmend"); if(am) am.addEventListener("click", function(){ startAmendment(rec); });
-  var snd=document.getElementById("recSend");
-  if(snd) snd.addEventListener("click", function(){
-    if(SUB_BUSY){ toast("A sync is already running…"); return; }
-    if(!navigator.onLine){ subEnqueue(rec.id,""); save(); updateSyncChip(); renderRecord(rec); toast("You are offline — queued. It sends itself when you reconnect."); return; }
-    snd.disabled=true; snd.textContent="⇪ Sending…";
-    SUB_BUSY=true; updateSyncChip();
-    subOne(rec).then(function(){ SUB_BUSY=false; updateSyncChip(); renderRecord(rec); toast("Sent to head office ✓"); },
-      function(e){ SUB_BUSY=false; updateSyncChip(); renderRecord(rec);
-        alert("Couldn't send this audit:\n\n"+((e&&e.message)||"failed")+"\n\nIt is queued and retries automatically. The ⛃ Backup file is always a manual fallback."); });
-  });
   document.querySelectorAll('#main select[data-reckey]').forEach(function(sel){
     sel.addEventListener("change", function(){
       if(!rec.capa||!rec.capa[sel.dataset.reckey]) return;
@@ -2084,6 +2119,8 @@ function completeAudit(){
   if(!c.by.trim()){ alert("Enter the auditor's name first — every locked audit records who took it."); return; }
   var t=totals();
   if(t.ans===0){ alert("Score at least one line before completing."); return; }
+  var orphan=[]; SECS().forEach(function(sec){ sec.checks.forEach(function(ch){ var key=k(sec,ch), cp=c.capa[key]; if(cp&&(cp.cause||cp.action||cp.owner)&&c.scores[key]!=="no") orphan.push(ch.q); }); });
+  if(orphan.length && !confirm(orphan.length+" line"+(orphan.length===1?" has":"s have")+" corrective-action text but "+(orphan.length===1?"is":"are")+" not marked No, so "+(orphan.length===1?"it":"they")+" would NOT go into the record:\n• "+orphan.join("\n• ")+"\n\nComplete anyway? (Cancel to go back and mark "+(orphan.length===1?"it":"them")+" No.)")) return;
   var un=t.tot-t.ans;
   if(un>0 && !confirm(un+" line"+(un===1?" is":"s are")+" still unanswered. Complete anyway? Unanswered lines are simply excluded from the score (they do NOT count against the branch).")) return;
   if(!c.designation.trim() && !confirm("No designation entered for the auditor. Complete without it?")) return;
@@ -2102,9 +2139,85 @@ function completeAudit(){
   state.dashType=rec.type;
   state.active=HISTORY; VIEW_REC=rec.id;
   save();
-  subAfterComplete(rec);   /* queues + starts the upload; renders below show the resulting state */
+  /* If storage was full, save() may not have written the cleared draft — the finished audit would then
+     re-open as an unfinished one next time. Make sure the cleared draft is on disk before moving on. */
+  if(!ensureDraftPersisted()){
+    alert("This audit is complete, but this phone is out of space, so the finished draft could not be cleared.\n\nOpen ⛃ Backup now to keep a copy, then use ⤓ Audit file on older audits in History to free space. Until then the finished audit may re-open as unfinished.");
+  }
   syncHeaderInputs(); renderSidebar(); renderMain(); updateHeader(); window.scrollTo(0,0);
-  toast("Audit completed and locked · "+rec.grade+(rec.score!=null?" · "+rec.score+"%":""));
+  toast("Audit completed and locked · "+rec.grade+(rec.score!=null?" · "+rec.score+"%":"")+" — saving a copy to Downloads…");
+  exportRecordFile(rec);
+}
+/* ---- Per-audit file: the completed record + its photos, downloaded automatically on completion ----
+   Browser storage on these phones has proven fragile (content:// origins, killed tabs), so every locked
+   audit also lands in Downloads as its own JSON. It can be shared to HQ on WhatsApp and imported into
+   any copy of the app (History → Import audit file) — photos included. */
+function recordFileName(rec){
+  var safe=function(x){ return String(x||"").replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,""); };
+  return "FO-Audit-"+safe(rec.branch)+"-"+safe(TYPES[rec.type]?TYPES[rec.type].short:rec.type)+"-"+safe(rec.date)+(rec.shift?"-"+safe(rec.shift):"")+".json";
+}
+function exportRecordFile(rec, quiet){
+  var pids=[]; Object.keys(rec.photos||{}).forEach(function(key){ pids=pids.concat(rec.photos[key]||[]); });
+  PENDING_ASYNC++;
+  var done=function(){ PENDING_ASYNC=Math.max(0,PENDING_ASYNC-1); };
+  var chain=Promise.resolve(), photos=[];
+  pids.forEach(function(pid){
+    chain=chain.then(function(){ return idbGet(pid).then(function(r){ return (r&&r.blob)?blobToDataURL(r.blob).then(function(du){ photos.push({id:pid,dataUrl:du}); }):null; }).catch(function(){}); });
+  });
+  return chain.then(function(){
+    var payload={ app:"flameon-audit-record", schemaVersion:8, exportedAt:nowStamp(), appBuild:APP_BUILD, record:rec, photos:photos };
+    var js=JSON.stringify(payload), name=recordFileName(rec);
+    var b=new Blob([js],{type:"application/json"}); var u=URL.createObjectURL(b); var a=document.createElement("a");
+    a.href=u; a.download=name; document.body.appendChild(a); a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(u); },1500);
+    if(rec.locked && !rec.exported){ rec.exported=nowStamp(); save(); } /* its photos may now be freed if the device runs out of room */
+    done();
+    if(!quiet) toast("Audit file saved to Downloads: "+name+" ("+Math.round(js.length/1024)+" KB, "+photos.length+" photo"+(photos.length===1?"":"s")+")");
+    return name;
+  },function(){ done(); if(!quiet) toast("Couldn't write the audit file."); return null; });
+}
+function importRecordFile(file){
+  var fr=new FileReader();
+  fr.onload=function(){
+    var d;
+    try{ d=JSON.parse(fr.result); }catch(e){ alert("That file isn't a readable audit file (invalid JSON)."); return; }
+    if(d&&d.app==="flameon-audit-backup"){ alert("That is a full device backup, not a single audit. Restore it from Admin → Data instead."); return; }
+    if(!d||d.app!=="flameon-audit-record"||!d.record||!d.record.id){ alert("That file isn't a Flame On audit file."); return; }
+    var rec=d.record;
+    if(recById(rec.id)){ toast("That audit is already on this device ("+rec.branch+" · "+rec.date+")."); state.active=HISTORY; VIEW_REC=rec.id; state.auditType=TYPES[rec.type]?rec.type:state.auditType; save(); renderSidebar(); renderMain(); return; }
+    if(!rec.type||!TYPES[rec.type]) rec.type="weekly";
+    rec.locked=true; if(rec.supersededBy===undefined) rec.supersededBy=null;
+    if(!rec.photos||typeof rec.photos!=="object") rec.photos={};
+    PENDING_ASYNC++;
+    var done=function(){ PENDING_ASYNC=Math.max(0,PENDING_ASYNC-1); };
+    var photos=Array.isArray(d.photos)?d.photos:[], chain=Promise.resolve(), wrote=0;
+    photos.forEach(function(p){
+      chain=chain.then(function(){
+        var b=p&&p.id?dataURLtoBlob(p.dataUrl||""):null; if(!b) return;
+        return idbPut({id:p.id,blob:b,bytes:b.size,ts:Date.now()}).then(function(){ wrote++; },function(){});
+      });
+    });
+    chain.then(function(){
+      state.history.push(rec);
+      state.auditType=rec.type; state.dashType=rec.type; state.active=HISTORY; VIEW_REC=rec.id;
+      save(); done();
+      syncHeaderInputs(); syncTypeUI(); renderSidebar(); renderMain(); updateHeader(); window.scrollTo(0,0);
+      toast("Audit imported: "+rec.branch+" · "+rec.date+" · "+(rec.grade||"")+" ("+wrote+" photo"+(wrote===1?"":"s")+")");
+    });
+  };
+  fr.onerror=function(){ alert("Couldn't read that file."); };
+  fr.readAsText(file);
+}
+/* Write the current drafts straight to storage and confirm they are there. Used after completing an audit. */
+function ensureDraftPersisted(){
+  var want;
+  try{ want=JSON.stringify(state.data); }catch(e){ return false; }
+  if(readKey(DRAFT_KEY)===want){ LAST_DRAFT=want; return true; }
+  try{ localStorage.setItem(DRAFT_KEY, want); LAST_DRAFT=want; return true; }catch(e){}
+  if(reclaimLocalPhotoSpace()>0){
+    try{ localStorage.setItem(DRAFT_KEY, want); LAST_DRAFT=want; schedulePhotoMigration(); return true; }catch(e2){}
+  }
+  return false;
 }
 function startAmendment(rec){
   if(!authed){
@@ -2168,13 +2281,23 @@ var ADM_TAB="full";
 function hashStr(s){ var h=5381,i; for(i=0;i<s.length;i++){ h=((h<<5)+h)+s.charCodeAt(i); h|=0; } return (h>>>0).toString(16); }
 function hasCreds(){ return !!(state.admin && state.admin.passHash); }
 function jsonSafe(o){ return JSON.stringify(o).split("</").join("<"+BS+"/"); }
-function exportHTML(){
+function exportHTML(){ downloadHTML(buildAppHTML(), "FlameOn-Operations-Audit.html"); }
+var APP_FILENAME="FO - operations - Audit.html";
+/* Same file, saved into Downloads. Chrome gives every file:// page one shared storage, so a copy opened
+   from the Files app always sees the same audits — unlike a copy opened straight from WhatsApp. */
+function saveAppToDevice(){
+  downloadHTML(buildAppHTML(), APP_FILENAME);
+  setTimeout(function(){ alert("Saved to the phone's Downloads folder as \""+APP_FILENAME+"\".\n\nFrom now on open it from the Files app → Downloads (or Chrome → Downloads). Do NOT open it from the WhatsApp chat each time — that mode starts with empty storage and loses the audit."); },400);
+}
+function downloadHTML(out,name){
+  var b=new Blob([out],{type:"text/html;charset=utf-8"}); var u=URL.createObjectURL(b); var a=document.createElement("a"); a.href=u; a.download=name; document.body.appendChild(a); a.click(); setTimeout(function(){document.body.removeChild(a); URL.revokeObjectURL(u);},1500);
+}
+function buildAppHTML(){
   var CLOSE="<"+"/script>";
   var baked="window.__FO_BAKED_CONFIG__="+jsonSafe(SECTIONS)+";window.__FO_BAKED_DAILY__="+jsonSafe(DSECTIONS)
     +";window.__FO_BAKED_WH__="+jsonSafe(WSECTIONS)+";window.__FO_BAKED_WHDAILY__="+jsonSafe(WDSECTIONS)
     +";window.__FO_BAKED_PROFILES__="+jsonSafe(state.branchProfiles||{})
     +";window.__FO_BAKED_QSV__="+jsonSafe(state.qsMeta)
-    +";window.__FO_BAKED_SUBMIT__="+jsonSafe(state.submit||SUBMIT_DEFAULTS)
     +";window.__FO_BAKED_ADMIN__="+jsonSafe(state.admin||null)+";";
   var openTag='<script id="bakedConfig">';
   /* Replace the whole bakedConfig span (empty on a fresh file, populated on an already-baked one) so
@@ -2185,7 +2308,7 @@ function exportHTML(){
     if(end<0) end=start+openTag.length;
     out=PRISTINE_HTML.slice(0,start)+openTag+baked+CLOSE+PRISTINE_HTML.slice(end+CLOSE.length);
   } else { out=PRISTINE_HTML; }
-  var b=new Blob([out],{type:"text/html;charset=utf-8"}); var u=URL.createObjectURL(b); var a=document.createElement("a"); a.href=u; a.download="FlameOn-Operations-Audit.html"; document.body.appendChild(a); a.click(); setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(u);},120);
+  return out;
 }
 function renderAdminLogin(){
   var first=!hasCreds();
@@ -2243,22 +2366,6 @@ function renderAdmin(){
       +'<button class="btn sm" id="admRestoreBtn">⤴ Restore from a backup file…</button>'
       +'<input type="file" id="admRestoreFile" accept=".json,application/json" style="display:none">'
       +'<span class="note">The backup contains every locked audit, draft, photo, question set and this login in one file. Browser storage can be wiped by clearing site data — keep a backup off this device (WhatsApp it to yourself, email it, USB). Restoring replaces everything on this device with the backup.</span></div></div>'
-    +'<div class="panel sub-panel"><div class="ph">Head-office submission<span class="sub">where completed audits are sent</span></div>'
-      +'<div class="subrow">'
-        +'<div class="sf"><label for="subUrl">Head-office link (ends in /exec)</label><input id="subUrl" type="url" spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec" value="'+esc(subCfg().url||"")+'"></div>'
-        +'<div class="sf" style="flex:0 1 200px"><label for="subToken">Shared token</label><input id="subToken" type="text" spellcheck="false" placeholder="token" value="'+esc(subCfg().token||"")+'"></div>'
-      +'</div>'
-      +'<div class="subrow" style="margin-top:10px">'
-        +'<label class="schk"><input type="checkbox" id="subAuto"'+(subCfg().auto?' checked':'')+'> Send automatically when an audit is completed</label>'
-        +'<label class="schk"><input type="checkbox" id="subPhotos"'+(subCfg().photos?' checked':'')+'> Include evidence photos (bigger upload)</label>'
-        +'<button class="btn submit sm" id="subSave">Save</button>'
-        +'<button class="btn sm" id="subTestBtn">⇄ Test connection</button>'
-        +(subPending()?'<button class="btn sm" id="subFlushBtn">⇪ Send '+subPending()+' waiting audit'+(subPending()===1?'':'s')+' now</button>':'')
-      +'</div>'
-      +'<pre class="sub-q" id="subTestOut"></pre>'
-      +'<div class="adm-datarow"><span class="note">Completed audits post to this link and land in the head-office sheet; nothing else is uploaded — drafts, the admin login and the question sets stay on this device. If there is no signal the audit is queued and sent later, so an auditor never waits on the network. Leave the link empty to turn sending off entirely and work by ⛃ Backup file only. The token is a shared secret, not a password: it keeps stray posts out, it does not hide anything from someone holding this app.</span></div>'
-      +(subPending()?'<div class="adm-datarow"><span class="note"><b>Waiting to send:</b> '+(state.submitQueue||[]).map(function(q){ var r=recById(q.recId); return esc((r?r.branch+" · "+r.date:q.recId)+(q.err?" — "+q.err:"")); }).join("<br>")+'</span></div>':'')
-    +'</div>'
     +'<div class="panel"><div class="ph">Scoring self-check</div><div class="adm-datarow">'
       +'<button class="btn sm" id="selftestBtn">🧪 Run scoring self-check</button>'
       +'<span class="note">Re-proves the scoring engine on hardcoded cases: every grade-band edge, the round-half-up-once policy, critical auto-fail (gate ticks AND critical questions), N/A weight redistribution, and daily stop items. Also available in the console as FO_SELFTEST().</span></div>'
@@ -2349,19 +2456,6 @@ function bindAdmin(){
     lines.push(""); lines.push(r.fail===0?("All "+r.total+" checks passed — scoring engine verified."):("⚠ "+r.fail+" of "+r.total+" checks FAILED — do not trust scores until this is fixed."));
     out.innerHTML=lines.join("\n"); out.style.display="block";
   });
-  document.getElementById("subSave").addEventListener("click", function(){
-    var c=subCfg();
-    var u=document.getElementById("subUrl").value.trim();
-    if(u && !/^https:\/\/\S+$/i.test(u)){ alert("The head-office link must be the full https:// address ending in /exec that head office gave you."); return; }
-    if(u && !/\/exec\s*$/i.test(u) && !confirm("That link does not end in /exec.\n\nApps Script gives two links — the /dev one only works while you are signed in as the owner. Save it anyway?")) return;
-    c.url=u; c.token=document.getElementById("subToken").value.trim();
-    c.auto=document.getElementById("subAuto").checked; c.photos=document.getElementById("subPhotos").checked;
-    save(); updateSyncChip(); renderAdmin();
-    toast(u?"Head-office submission saved.":"Head-office submission turned off — audits stay on this device.");
-  });
-  document.getElementById("subTestBtn").addEventListener("click", subTest);
-  var sfb=document.getElementById("subFlushBtn");
-  if(sfb) sfb.addEventListener("click", function(){ subFlush(true).then(function(){ renderAdmin(); }); });
   var cd=document.getElementById("capaDays");
   cd.addEventListener("change", function(){ var v=parseInt(cd.value,10); if(v>0&&v<=60){ state.settings.capaDueDays=v; save(); toast("New CAPAs will default to "+v+" days."); } else cd.value=state.settings.capaDueDays; });
   document.getElementById("addSecBtn").addEventListener("click", function(){ var defGrp=ADM_TAB==="daily"?"Brand Standards":(ADM_TAB==="wh"?"Warehouse Operations":(ADM_TAB==="whdaily"?"Warehouse Daily":"Operations")); admList().push({id:genId(),name:"New section",grp:defGrp,cat:null,inferred:false,checks:[{id:genId(),q:"New criterion",lk:"",rf:"",spec:false,crit:false}]}); persistConfig(ADM_TAB); renderAdmin(); renderSidebar(); });
@@ -2586,18 +2680,18 @@ function printAudit(rec){
   if(vm) vm.secs.forEach(function(sec){ sec.rows.forEach(function(rw){ if(rw.a==="no"&&rw.pids&&rw.pids.length) pids=pids.concat(rw.pids); }); });
   PENDING_ASYNC++;
   var done=function(){ PENDING_ASYNC=Math.max(0,PENDING_ASYNC-1); };
-  Promise.all(pids.map(function(pid){ return idbGet(pid).catch(function(){return null;}); })).then(function(recs){
+  /* Photos go in as data URLs. The earlier blob: URLs were revoked 5 s after window.print() — on Android the
+     print/Save-as-PDF dialog renders later than that, so every photo not yet decoded printed as an empty frame. */
+  Promise.all(pids.map(function(pid){
+    return idbGet(pid).then(function(r){ return (r&&r.blob)?blobToDataURL(r.blob).then(function(du){ return {id:pid,du:du}; }):null; }).catch(function(){ return null; });
+  })).then(function(recs){
     var purls={};
-    recs.forEach(function(r){ if(r&&r.blob) purls[r.id]=URL.createObjectURL(r.blob); });
+    recs.forEach(function(r){ if(r&&r.du) purls[r.id]=r.du; });
     renderPrintVM(vm,purls);
     PRINT_READY=true;
-    setTimeout(function(){
-      window.print();
-      PRINT_READY=false;
-      setTimeout(function(){ Object.keys(purls).forEach(function(id){ URL.revokeObjectURL(purls[id]); }); },5000);
-    },60);
+    setTimeout(function(){ window.print(); },120);
     done();
-  },function(){ renderPrintVM(vm,{}); PRINT_READY=true; setTimeout(function(){ window.print(); PRINT_READY=false; },60); done(); });
+  },function(){ renderPrintVM(vm,{}); PRINT_READY=true; setTimeout(function(){ window.print(); },120); done(); });
 }
 
 /* ---- Photos (IndexedDB; localStorage stays lean) ---- */
@@ -2605,18 +2699,214 @@ var IDB_DB=null, IDB_FAILED=false, THUMB_URLS=[];
 function idb(){
   return new Promise(function(res,rej){
     if(IDB_DB) return res(IDB_DB);
-    if(IDB_FAILED||!window.indexedDB){ IDB_FAILED=true; return rej(new Error("IndexedDB unavailable")); }
+    if(!window.indexedDB){ IDB_FAILED=true; var e0=new Error("IndexedDB unavailable"); e0.idbOpen=true; return rej(e0); }
     var rq;
-    try{ rq=indexedDB.open("flameon_audit_photos",1); }catch(e){ IDB_FAILED=true; return rej(e); }
+    try{ rq=indexedDB.open("flameon_audit_photos",1); }catch(e){ IDB_FAILED=true; var e1=new Error((e&&e.message)||"IndexedDB blocked"); e1.idbOpen=true; return rej(e1); }
     rq.onupgradeneeded=function(){ rq.result.createObjectStore("photos",{keyPath:"id"}); };
-    rq.onsuccess=function(){ IDB_DB=rq.result; res(IDB_DB); };
-    rq.onerror=function(){ IDB_FAILED=true; rej(rq.error||new Error("IndexedDB open failed")); };
+    rq.onsuccess=function(){
+      IDB_DB=rq.result; IDB_FAILED=false;
+      /* Android Chrome drops idle IndexedDB connections under memory pressure (typically while the camera
+         app is in front). Forget the dead handle so the next photo reopens instead of failing forever. */
+      IDB_DB.onclose=function(){ IDB_DB=null; };
+      IDB_DB.onversionchange=function(){ try{ IDB_DB.close(); }catch(e){} IDB_DB=null; };
+      res(IDB_DB);
+    };
+    rq.onerror=function(){ IDB_DB=null; var e=new Error((rq.error&&rq.error.message)||"IndexedDB open failed"); e.idbOpen=true; rej(e); };
+    rq.onblocked=function(){ rej(new Error("photo storage is busy — try again")); };
   });
 }
-function idbPut(recd){ return idb().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction("photos","readwrite"); tx.objectStore("photos").put(recd); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(tx.error);}; tx.onabort=function(){rej(tx.error||new Error("photo write aborted (storage full?)"));}; }); }); }
-function idbGet(id){ return idb().then(function(db){ return new Promise(function(res,rej){ var rq=db.transaction("photos").objectStore("photos").get(id); rq.onsuccess=function(){res(rq.result||null);}; rq.onerror=function(){rej(rq.error);}; }); }); }
-function idbDel(id){ return idb().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction("photos","readwrite"); tx.objectStore("photos").delete(id); tx.oncomplete=function(){res();}; tx.onerror=function(){rej(tx.error);}; }); }); }
-function idbAll(){ return idb().then(function(db){ return new Promise(function(res,rej){ var rq=db.transaction("photos").objectStore("photos").getAll(); rq.onsuccess=function(){res(rq.result||[]);}; rq.onerror=function(){rej(rq.error);}; }); }); }
+/* One transaction on the photos store; if the connection had silently died, reopen and retry once. */
+function idbRun(mode,fn){
+  var attempt=function(retry){
+    return idb().then(function(db){
+      return new Promise(function(res,rej){
+        var tx;
+        try{ tx=db.transaction("photos",mode); }catch(e){ IDB_DB=null; return rej(e); }
+        var out;
+        tx.oncomplete=function(){ res(out); };
+        tx.onerror=function(){ rej(tx.error||new Error("photo storage error")); };
+        tx.onabort=function(){ rej(tx.error||new Error("photo write aborted (storage full?)")); };
+        var rq=fn(tx.objectStore("photos"));
+        if(rq) rq.onsuccess=function(){ out=rq.result; };
+      });
+    }).then(null,function(e){
+      if(retry && !(e&&e.name==="QuotaExceededError")){ IDB_DB=null; return attempt(false); }
+      throw e;
+    });
+  };
+  return attempt(true);
+}
+/* ---- Fallback photo store ----
+   Some Android phones hand the file to Chrome as content:// and Chrome then cannot open IndexedDB at all
+   ("Internal error opening backing store") even though localStorage works — seen on a Transsion (Tecno/
+   Infinix) phone 2026-09-16. Photos then go into localStorage as data URLs under PHOTO_LS_PREFIX. That
+   space is shared with the audit data (~5 MB), so fallback photos are compressed harder and the storage
+   meter counts them. Reads check localStorage first, so a device that switched modes still shows both. */
+var PHOTO_FALLBACK=false, PHOTO_LS_PREFIX="flameon_photo_", PHOTO_FB_MAX_BYTES=45*1024, PHOTO_FB_MAX_DIM=900;
+/* Photos in localStorage cost ~2 bytes per character. Base64 (the old data-URL form) needs 1.37 chars per
+   JPEG byte, so an 80 KB photo ate ~213 KB of the budget and the space was gone after ~16 photos — that is
+   the "photo storage on this phone is full" the auditor hit mid-audit. A binary string is 1 char per byte,
+   so the same photo now costs ~2x its size instead of ~2.7x, and each photo is smaller to begin with. */
+var PHOTO_LS_BUDGET=4.2*1024*1024, PHOTO_LS_RESERVE=500*1024;
+function lsPhotoKey(id){ return PHOTO_LS_PREFIX+id; }
+function blobToBinaryString(b){
+  return new Promise(function(res,rej){
+    var fr=new FileReader();
+    fr.onload=function(){
+      var u=new Uint8Array(fr.result), out="", CH=8192;
+      for(var i=0;i<u.length;i+=CH) out+=String.fromCharCode.apply(null, u.subarray(i,i+CH));
+      res(out);
+    };
+    fr.onerror=function(){ rej(fr.error||new Error("read failed")); };
+    fr.readAsArrayBuffer(b);
+  });
+}
+function binaryStringToBlob(bin,type){
+  var u=new Uint8Array(bin.length);
+  for(var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i)&255;
+  return new Blob([u],{type:type||"image/jpeg"});
+}
+/* Room needed for this photo, freeing photos of audits already saved to a file if necessary. */
+function lsMakeRoom(need){
+  var audit=0; try{ audit=((localStorage.getItem(STORE_KEY)||"").length+(localStorage.getItem(DRAFT_KEY)||"").length)*2; }catch(e){}
+  if(lsPhotoBytes()+audit+need+PHOTO_LS_RESERVE <= PHOTO_LS_BUDGET) return true;
+  /* Free oldest first, and ONLY photos belonging to locked audits already written to Downloads as their own
+     file — the record keeps its answers and the file keeps the photos, so nothing is actually lost. */
+  var evictable=state.history.filter(function(r){ return r.locked && r.exported; })
+    .sort(function(a,b){ return (a.ts||0)-(b.ts||0); });
+  for(var i=0;i<evictable.length;i++){
+    var rec=evictable[i], freed=false;
+    Object.keys(rec.photos||{}).forEach(function(key){
+      (rec.photos[key]||[]).forEach(function(pid){ if(readKey(lsPhotoKey(pid))!==null){ lsPhotoDel(pid); freed=true; } });
+    });
+    if(freed){ rec.photosEvicted=true; save(); }
+    try{ audit=((localStorage.getItem(STORE_KEY)||"").length+(localStorage.getItem(DRAFT_KEY)||"").length)*2; }catch(e){}
+    if(lsPhotoBytes()+audit+need+PHOTO_LS_RESERVE <= PHOTO_LS_BUDGET) return true;
+  }
+  return false;
+}
+function lsPhotoPut(recd){
+  return blobToBinaryString(recd.blob).then(function(bin){
+    var payload=JSON.stringify({id:recd.id,bin:bin,type:recd.blob.type||"image/jpeg",bytes:recd.bytes,ts:recd.ts});
+    if(!lsMakeRoom(payload.length*2)){ var q=new Error("photo storage full"); q.name="QuotaExceededError"; throw q; }
+    try{ localStorage.setItem(lsPhotoKey(recd.id), payload); }
+    catch(e){ if(!lsMakeRoom(payload.length*2)) throw e; localStorage.setItem(lsPhotoKey(recd.id), payload); }
+  });
+}
+function lsPhotoGet(id){
+  var raw=readKey(lsPhotoKey(id)); if(raw===null) return null;
+  try{
+    var p=JSON.parse(raw);
+    var b=p.bin!=null?binaryStringToBlob(p.bin,p.type):dataURLtoBlob(p.dataUrl||""); /* dataUrl = photo stored by v8.0.2/8.0.3 */
+    return b?{id:id,blob:b,bytes:p.bytes||b.size,ts:p.ts||0}:null;
+  }catch(e){ return null; }
+}
+function lsPhotoDel(id){ try{ localStorage.removeItem(lsPhotoKey(id)); }catch(e){} }
+function lsPhotoAll(){
+  var out=[];
+  try{ for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(k&&k.indexOf(PHOTO_LS_PREFIX)===0){ var r=lsPhotoGet(k.slice(PHOTO_LS_PREFIX.length)); if(r) out.push(r); } } }catch(e){}
+  return out;
+}
+function lsPhotoBytes(){
+  var b=0;
+  try{ for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(k&&k.indexOf(PHOTO_LS_PREFIX)===0) b+=(localStorage.getItem(k)||"").length*2; } }catch(e){}
+  return b;
+}
+/* ---- Cache Storage tier ----
+   On phones where Chrome cannot open IndexedDB, the Cache API often still works (different backend) and gets
+   the full device quota instead of the ~5 MB localStorage shares with the audit data. Probed once, at boot. */
+var PHOTO_CACHE=null, CACHE_TRIED=false, CACHE_NAME="flameon_audit_photos_v1";
+function cacheURL(id){ return "https://flameon.local/photo/"+encodeURIComponent(id); }
+function cacheProbe(){
+  if(CACHE_TRIED) return Promise.resolve(PHOTO_CACHE);
+  CACHE_TRIED=true;
+  if(typeof caches==="undefined"||!caches||!caches.open) return Promise.resolve(null);
+  return caches.open(CACHE_NAME).then(function(c){
+    var probe=cacheURL("__probe__");
+    return c.put(probe, new Response(new Blob(["1"]))).then(function(){ return c.match(probe); }).then(function(r){
+      if(!r) throw new Error("cache unusable");
+      return c.delete(probe).then(function(){ PHOTO_CACHE=c; return c; });
+    });
+  }).catch(function(){ PHOTO_CACHE=null; return null; });
+}
+function cachePut(recd){ return PHOTO_CACHE.put(cacheURL(recd.id), new Response(recd.blob, {headers:{"X-Bytes":String(recd.bytes||recd.blob.size),"X-Ts":String(recd.ts||Date.now())}})); }
+function cacheGet(id){
+  return PHOTO_CACHE.match(cacheURL(id)).then(function(r){
+    if(!r) return null;
+    return r.blob().then(function(b){ return {id:id,blob:b,bytes:parseInt(r.headers.get("X-Bytes"),10)||b.size,ts:parseInt(r.headers.get("X-Ts"),10)||0}; });
+  });
+}
+function cacheDel(id){ return PHOTO_CACHE.delete(cacheURL(id)); }
+function cacheAll(){
+  return PHOTO_CACHE.keys().then(function(reqs){
+    var out=[], chain=Promise.resolve();
+    reqs.forEach(function(rq){
+      var id=decodeURIComponent(rq.url.split("/photo/")[1]||"");
+      if(!id||id==="__probe__") return;
+      chain=chain.then(function(){ return cacheGet(id).then(function(r){ if(r) out.push(r); },function(){}); });
+    });
+    return chain.then(function(){ return out; });
+  });
+}
+function useFallback(e){
+  if(e&&e.idbOpen&&!PHOTO_FALLBACK&&!PHOTO_CACHE){ PHOTO_FALLBACK=true; updateStorageMeter(); }
+  return PHOTO_FALLBACK;
+}
+/* A phone can fail to open its photo database one day and open it fine the next (it happened to the
+   warehouse auditor). Photos written meanwhile sit in the audit-data area and fill the ~5 MB that the
+   answers themselves need, so move them across as soon as a real store is working. */
+var MIGRATION_DONE=false;
+function schedulePhotoMigration(){
+  if(MIGRATION_DONE) return Promise.resolve(0);
+  MIGRATION_DONE=true;
+  if(PHOTO_FALLBACK&&!PHOTO_CACHE) return Promise.resolve(0);
+  var ids=[];
+  try{ for(var i=0;i<localStorage.length;i++){ var key=localStorage.key(i); if(key&&key.indexOf(PHOTO_LS_PREFIX)===0) ids.push(key.slice(PHOTO_LS_PREFIX.length)); } }catch(e){}
+  if(!ids.length) return Promise.resolve(0);
+  PENDING_ASYNC++;
+  var done=function(){ PENDING_ASYNC=Math.max(0,PENDING_ASYNC-1); };
+  var moved=0, chain=Promise.resolve();
+  ids.forEach(function(pid){
+    chain=chain.then(function(){
+      var r=lsPhotoGet(pid);
+      if(!r||!r.blob){ lsPhotoDel(pid); return; }
+      var put=PHOTO_CACHE?cachePut(r):idbRun("readwrite",function(st){ return st.put({id:r.id,blob:r.blob,bytes:r.bytes,ts:r.ts}); });
+      return put.then(function(){ lsPhotoDel(pid); moved++; },function(){});
+    });
+  });
+  return chain.then(function(){
+    done();
+    if(moved){ LAST_MAIN=null; LAST_DRAFT=null; save(); updateStorageMeter(); toast(moved+" photo"+(moved===1?"":"s")+" moved out of the audit-data area — space freed."); }
+    return moved;
+  },function(){ done(); return moved; });
+}
+function idbPut(recd){
+  if(PHOTO_CACHE) return cachePut(recd).then(null,function(){ return lsPhotoPut(recd); });
+  if(PHOTO_FALLBACK) return lsPhotoPut(recd);
+  return idbRun("readwrite",function(st){ return st.put(recd); }).then(null,function(e){
+    if(e&&e.idbOpen) return cacheProbe().then(function(c){ if(c) return cachePut(recd); if(useFallback(e)) return lsPhotoPut(recd); throw e; });
+    throw e;
+  });
+}
+function idbGet(id){
+  var ls=lsPhotoGet(id); if(ls) return Promise.resolve(ls);
+  if(PHOTO_CACHE) return cacheGet(id).then(null,function(){ return null; });
+  if(PHOTO_FALLBACK) return Promise.resolve(null);
+  return idbRun("readonly",function(st){ return st.get(id); }).then(function(r){ return r||null; },function(e){ if(useFallback(e)) return null; throw e; });
+}
+function idbDel(id){
+  lsPhotoDel(id);
+  if(PHOTO_CACHE) return cacheDel(id).then(null,function(){});
+  if(PHOTO_FALLBACK) return Promise.resolve();
+  return idbRun("readwrite",function(st){ return st.delete(id); }).then(null,function(e){ if(useFallback(e)) return; throw e; });
+}
+function idbAll(){
+  var ls=lsPhotoAll(), seen={}; ls.forEach(function(r){ seen[r.id]=true; });
+  var add=function(list){ return ls.concat((list||[]).filter(function(x){ return !seen[x.id]; })); };
+  if(PHOTO_CACHE) return cacheAll().then(add,function(){ return ls; });
+  if(PHOTO_FALLBACK) return Promise.resolve(ls);
+  return idbRun("readonly",function(st){ return st.getAll(); }).then(add,function(e){ if(useFallback(e)) return ls; throw e; });
+}
 function photoReferenced(pid){
   var found=false;
   TYPE_ORDER.forEach(function(t){ Object.keys(state.data[t]).forEach(function(b){ var ph=state.data[t][b].photos||{}; Object.keys(ph).forEach(function(key){ if((ph[key]||[]).indexOf(pid)>=0) found=true; }); }); });
@@ -2624,6 +2914,8 @@ function photoReferenced(pid){
   return found;
 }
 function compressImage(file){
+  var lim=PHOTO_FALLBACK&&!PHOTO_CACHE; /* only the localStorage tier needs the tighter limits */
+  var maxBytes=lim?PHOTO_FB_MAX_BYTES:PHOTO_MAX_BYTES, maxDim=lim?PHOTO_FB_MAX_DIM:PHOTO_MAX_DIM;
   return new Promise(function(res,rej){
     var img=new Image(), url=URL.createObjectURL(file);
     img.onload=function(){
@@ -2631,7 +2923,7 @@ function compressImage(file){
       try{
         var w=img.naturalWidth, h=img.naturalHeight;
         if(!w||!h) return rej(new Error("unreadable image"));
-        var scale=Math.min(1,PHOTO_MAX_DIM/Math.max(w,h));
+        var scale=Math.min(1,maxDim/Math.max(w,h));
         var cw=Math.max(1,Math.round(w*scale)), chh=Math.max(1,Math.round(h*scale));
         var cv=document.createElement("canvas"); cv.width=cw; cv.height=chh;
         cv.getContext("2d").drawImage(img,0,0,cw,chh);
@@ -2639,7 +2931,7 @@ function compressImage(file){
         (function tryQ(i){
           cv.toBlob(function(b){
             if(!b) return rej(new Error("could not encode JPEG"));
-            if(b.size<=PHOTO_MAX_BYTES||i>=qs.length-1) res(b); else tryQ(i+1);
+            if(b.size<=maxBytes||i>=qs.length-1) res(b); else tryQ(i+1);
           },"image/jpeg",qs[i]);
         })(0);
       }catch(e){ rej(e); }
@@ -2649,26 +2941,45 @@ function compressImage(file){
   });
 }
 function photoCount(a){ var n=0; Object.keys(a.photos||{}).forEach(function(key){ n+=(a.photos[key]||[]).length; }); return n; }
-function addPhoto(key,file){
+function photoErrMsg(file,e){
+  var name=(file&&file.name)||"photo", msg=(e&&e.message)?e.message:"storage error";
+  if(e&&(e.name==="QuotaExceededError"||/quota|exceeded/i.test(msg))) msg="this phone is out of photo space. Photos of audits already saved to Downloads were freed automatically, so the space in use belongs to audits not yet saved as files. Open History, use ⤓ Audit file on the older audits, then try again";
+  if(/\.hei[cf]$/i.test(name)||/hei[cf]/i.test((file&&file.type)||"")) msg="HEIC format — the browser can't read it. Set the phone camera to JPEG / 'Most compatible', or pick a JPEG from the gallery";
+  return name+": "+msg;
+}
+/* Attach one or more files to a question, one after the other (the cap is checked once, up front). */
+function addPhotos(key,files){
   var c=cur(); if(!c) return;
-  if(photoCount(c)>=PHOTO_CAP){ alert("Photo limit reached for this audit ("+PHOTO_CAP+" photos ≈ "+Math.round(PHOTO_CAP*PHOTO_MAX_BYTES/1024/1024*10)/10+" MB). Delete one first, or note the evidence in text."); return; }
+  var list=Array.prototype.slice.call(files||[]).filter(function(f){ return f&&f.size>0; });
+  if(!list.length) return;
+  var room=PHOTO_CAP-photoCount(c);
+  if(room<=0){ alert("Photo limit reached for this audit ("+PHOTO_CAP+" photos). Delete one first, or note the evidence in text."); return; }
+  var skipped=0; if(list.length>room){ skipped=list.length-room; list=list.slice(0,room); }
+  toast(list.length===1?"Attaching photo…":"Attaching "+list.length+" photos…");
   PENDING_ASYNC++;
   var done=function(){ PENDING_ASYNC=Math.max(0,PENDING_ASYNC-1); };
-  compressImage(file).then(function(blob){
-    var id="p"+genId();
-    return idbPut({id:id,blob:blob,bytes:blob.size,ts:Date.now()}).then(function(){
-      if(!c.photos[key]) c.photos[key]=[];
-      c.photos[key].push(id);
-      save();
-      if(getSec(state.active)) renderMain();
-      updateStorageMeter();
-      toast("Photo attached ("+Math.round(blob.size/1024)+" KB)");
-    });
-  }).then(done,function(e){
+  var added=0, bytes=0, errs=[];
+  var next=function(i){
+    if(i>=list.length) return Promise.resolve();
+    return compressImage(list[i]).then(function(blob){
+      var id="p"+genId();
+      return idbPut({id:id,blob:blob,bytes:blob.size,ts:Date.now()}).then(function(){
+        if(!c.photos[key]) c.photos[key]=[];
+        c.photos[key].push(id); added++; bytes+=blob.size;
+        save(); /* per photo, so a tab killed mid-batch keeps the ones already stored */
+      });
+    }).then(null,function(e){ errs.push(photoErrMsg(list[i],e)); }).then(function(){ return next(i+1); });
+  };
+  next(0).then(function(){
     done();
-    alert("Couldn't attach the photo: "+(e&&e.message?e.message:"storage error")+". The audit itself is unaffected — describe the evidence in the note instead.");
+    if(getSec(state.active)) renderMain();
+    updateStorageMeter();
+    if(added) toast(added===1?"Photo attached ("+Math.round(bytes/1024)+" KB)":added+" photos attached ("+Math.round(bytes/1024)+" KB)");
+    if(skipped) alert(skipped+" photo"+(skipped===1?" was":"s were")+" not added — the limit is "+PHOTO_CAP+" photos per audit.");
+    if(errs.length) alert("Couldn't attach "+(errs.length===1?"the photo":errs.length+" photos")+":\n• "+errs.join("\n• ")+"\n\nThe audit itself is unaffected — describe the evidence in the note instead.");
   });
 }
+function addPhoto(key,file){ addPhotos(key,[file]); }
 function delPhoto(key,pid){
   if(!confirm("Remove this photo?")) return;
   var c=cur(); if(!c||!c.photos[key]) return;
@@ -2682,13 +2993,32 @@ function delPhoto(key,pid){
 function photoThumbHTML(key,pid){
   return '<span class="thumb"><img data-thumb="'+pid+'" data-view="'+pid+'" alt="Audit photo — tap to view"><button class="del" data-delphoto="'+pid+'" data-pk="'+esc(key)+'" aria-label="Delete photo">✕</button></span>';
 }
+/* Android may reload the page while the camera app is in front; remember which question we were on. */
+function setResume(key){ try{ localStorage.setItem(RESUME_KEY, JSON.stringify({key:key,at:Date.now()})); }catch(e){} }
+function clearResume(){ try{ localStorage.removeItem(RESUME_KEY); }catch(e){} }
+function applyResume(){
+  var rs=null;
+  try{ rs=JSON.parse(localStorage.getItem(RESUME_KEY)||"null"); }catch(e){}
+  clearResume();
+  if(!rs||!rs.key||Date.now()-(rs.at||0)>15*60*1000) return;
+  var card=document.getElementById("card-"+rs.key); if(!card) return;
+  setTimeout(function(){ card.scrollIntoView({block:"center"}); },50);
+  toast("Back where you left off — your answers were kept. Re-take the photo if it did not attach.");
+}
 function bindPhotoStrips(){
   document.querySelectorAll('#main [data-addphoto]').forEach(function(btn){
     btn.addEventListener("click", function(){
       if(IDB_FAILED){ alert("Photos aren't supported in this browser/mode (storage blocked). The audit works fine without them."); return; }
-      var inp=document.createElement("input"); inp.type="file"; inp.accept="image/*"; inp.setAttribute("capture","environment"); inp.style.display="none";
+      var gallery=btn.dataset.src==="gallery";
+      var inp=document.createElement("input"); inp.type="file"; inp.accept="image/*"; inp.style.display="none";
+      if(gallery) inp.multiple=true; else inp.setAttribute("capture","environment");
+      setResume(btn.dataset.addphoto);
       document.body.appendChild(inp);
-      inp.addEventListener("change", function(){ if(inp.files&&inp.files[0]) addPhoto(btn.dataset.addphoto, inp.files[0]); document.body.removeChild(inp); });
+      inp.addEventListener("change", function(){
+        clearResume();
+        if(inp.files&&inp.files.length) addPhotos(btn.dataset.addphoto, inp.files);
+        if(inp.parentNode) inp.parentNode.removeChild(inp);
+      });
       inp.click();
     });
   });
@@ -2699,10 +3029,15 @@ function loadThumbs(){
   THUMB_URLS.forEach(function(u){ URL.revokeObjectURL(u); }); THUMB_URLS=[];
   document.querySelectorAll('img[data-thumb]').forEach(function(im){
     idbGet(im.dataset.thumb).then(function(r){
-      if(r&&r.blob){ var u=URL.createObjectURL(r.blob); THUMB_URLS.push(u); im.src=u; }
-      else im.alt="photo missing";
-    }).catch(function(){ im.alt="photo unavailable"; });
+      if(r&&r.blob){ var u=URL.createObjectURL(r.blob); THUMB_URLS.push(u); im.src=u; return; }
+      markThumbMissing(im,"This photo is no longer stored on this phone");
+    }).catch(function(){ markThumbMissing(im,"This photo could not be read on this phone"); });
   });
+}
+function markThumbMissing(im,why){
+  im.removeAttribute("src"); im.alt="";
+  var th=im.parentNode;
+  if(th&&th.classList){ th.classList.add("missing"); th.title=why; }
 }
 var MODAL_URL=null;
 function viewPhoto(pid){
@@ -2802,201 +3137,21 @@ function discardDraft(){
   syncHeaderInputs(); renderMain(); renderSidebar(); updateHeader(); updateStorageMeter();
 }
 
-/* ================= HQ submission (v8.1) =================
-   A completed audit is locked and immutable, so it can be re-sent safely and the queue only
-   ever needs to remember record IDs — the payload is rebuilt from state.history + IndexedDB at
-   send time. That keeps the queue inside `state` (so it rides along with save(), cross-tab sync
-   and the JSON backup) instead of duplicating megabytes of photos into a second store.
-   Failure is never silent and never lossy: a failed send leaves the audit on the device, queued,
-   with the ⛃ Backup file always available as the manual fallback. */
-var SUB_BUSY=false;
-
-function subCfg(){ if(!state.submit||typeof state.submit!=="object") state.submit=Object.assign({},SUBMIT_DEFAULTS); return state.submit; }
-function subOn(){ return !!subCfg().url; }
-function subPending(){ return (state.submitQueue||[]).length; }
-function subQueued(recId){ return (state.submitQueue||[]).some(function(x){ return x.recId===recId; }); }
-function subEnqueue(recId,err){
-  if(!Array.isArray(state.submitQueue)) state.submitQueue=[];
-  var found=null;
-  state.submitQueue.forEach(function(x){ if(x.recId===recId) found=x; });
-  if(found){ found.tries=(found.tries||0)+1; found.err=err||""; found.at=nowStamp(); }
-  else state.submitQueue.push({ recId:recId, at:nowStamp(), tries:err?1:0, err:err||"" });
-}
-function subDequeue(recId){ state.submitQueue=(state.submitQueue||[]).filter(function(x){ return x.recId!==recId; }); }
-
-function updateSyncChip(){
-  var b=document.getElementById("syncBtn"); if(!b) return;
-  var n=subPending();
-  b.classList.remove("pending","err");
-  if(SUB_BUSY){ b.textContent="⇪ Sending…"; b.disabled=true; b.title="Uploading to head office…"; return; }
-  b.disabled=false;
-  if(!subOn()){ b.textContent="⇪ Sync"; b.title="No head-office endpoint set on this device yet — Admin → Head-office submission."; return; }
-  if(n>0){
-    b.textContent="⇪ Sync ("+n+")";
-    b.classList.add(navigator.onLine?"pending":"err");
-    b.title=n+" completed audit"+(n===1?"":"s")+" waiting to reach head office"+(navigator.onLine?" — tap to send now":" — you are offline; they go automatically when you reconnect");
-    return;
-  }
-  b.textContent="⇪ Synced"; b.title="Every completed audit on this device has reached head office.";
-}
-
-/* Photos ride along as data URLs, oldest first, until the budget is spent. One photo may cross
-   the line (the budget is checked before each attachment) — that is deliberate, so a single big
-   photo is still sent rather than silently dropped. */
-function subPhotos(rec){
-  var ids=[];
-  Object.keys(rec.photos||{}).forEach(function(key){ (rec.photos[key]||[]).forEach(function(pid){ ids.push({key:key,pid:pid}); }); });
-  if(!ids.length) return Promise.resolve([]);
-  var out=[], used=0, skipped=0;
-  return ids.reduce(function(p,x){
-    return p.then(function(){
-      if(used>=SUBMIT_PHOTO_BUDGET){ skipped++; return; }
-      return idbGet(x.pid).then(function(r){
-        if(!r||!r.blob){ skipped++; return; }
-        return blobToDataURL(r.blob).then(function(du){ used+=du.length; out.push({ key:x.key, id:x.pid, dataUrl:du }); });
-      }).catch(function(){ skipped++; });
-    });
-  }, Promise.resolve()).then(function(){ out.skipped=skipped; return out; });
-}
-
-function subPayload(rec,photos){
-  var openCapa=recordCapaList(rec).filter(function(x){ return x.cp.status!=="Verified Closed"; }).length;
-  return {
-    v:1, token:subCfg().token||"", doc:"FO-STD-001", app:APP_BUILD,
-    submittedAt:nowStamp(), tz:"Asia/Karachi",
-    device:String(navigator.userAgent||"").slice(0,180),
-    /* Flat summary so the Sheet row needs no digging; `record` keeps the full locked snapshot. */
-    summary:{
-      id:rec.id, branch:rec.branch||"", type:rec.type||"", typeLabel:(TYPES[rec.type]&&TYPES[rec.type].label)||rec.type||"",
-      date:rec.date||"", shift:rec.shift||"", by:rec.by||"", designation:rec.designation||"", item:rec.item||"",
-      profile:rec.profile||"restaurant", score:(rec.score==null?"":rec.score), grade:rec.grade||"", tier:rec.tier||"",
-      fail:!!rec.fail, findings:(rec.findings==null?"":rec.findings), completion:(rec.completion==null?"":rec.completion),
-      safety:(rec.safety==null?"":rec.safety), stops:(rec.stops==null?"":rec.stops),
-      failReasons:(rec.failReasons||[]).join(" | "), capaOpen:openCapa,
-      photos:(photos||[]).length, qsVersion:rec.qsVersion||"", appBuild:rec.appBuild||"",
-      completedAt:rec.tsCompleted||"", amended:!!rec.amendment, supersededBy:rec.supersededBy||""
-    },
-    record:rec, photos:photos||[]
-  };
-}
-
-function subPost(url,payload){
-  return new Promise(function(res,rej){
-    if(!window.fetch){ rej(new Error("this browser cannot upload (no fetch support) — use ⛃ Backup and send the file instead")); return; }
-    var ctl=window.AbortController?new AbortController():null, done=false;
-    var timer=setTimeout(function(){ if(done) return; if(ctl) ctl.abort(); else { done=true; rej(new Error("upload timed out")); } }, SUBMIT_TIMEOUT_MS);
-    /* text/plain keeps this a CORS "simple request". Apps Script web apps do not answer the
-       preflight OPTIONS that an application/json body would trigger, so a JSON content-type
-       fails in the browser before it ever leaves the device. */
-    fetch(url,{ method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload), redirect:"follow", signal:ctl?ctl.signal:undefined })
-      .then(function(r){ return r.text().then(function(t){ return {ok:r.ok,status:r.status,text:t}; }); })
-      .then(function(r){
-        clearTimeout(timer); if(done) return; done=true;
-        if(!r.ok){ rej(new Error("head office replied "+r.status+(r.text?" — "+r.text.slice(0,140):""))); return; }
-        var j=null; try{ j=JSON.parse(r.text); }catch(e){}
-        if(!j){ rej(new Error("unexpected reply — check the Apps Script is deployed with access set to Anyone")); return; }
-        if(!j.ok){ rej(new Error(j.error||"head office rejected the audit")); return; }
-        res(j);
-      })
-      .catch(function(e){
-        clearTimeout(timer); if(done) return; done=true;
-        rej(new Error(e&&e.name==="AbortError"?"upload timed out — connection too slow":((e&&e.message)||"network error")));
-      });
-  });
-}
-
-function subOne(rec){
-  var c=subCfg();
-  if(!c.url) return Promise.reject(new Error("no head-office endpoint is set on this device"));
-  var getPhotos=c.photos?subPhotos(rec):Promise.resolve([]);
-  return getPhotos.then(function(photos){
-    return subPost(c.url, subPayload(rec,photos)).then(function(j){
-      rec.sub={ st:"sent", at:nowStamp(), ref:j.ref||"", photos:photos.length, tries:((rec.sub&&rec.sub.tries)||0)+1 };
-      subDequeue(rec.id); save();
-      return j;
-    });
-  }, function(e){ throw e; }).catch(function(e){
-    rec.sub={ st:"error", at:nowStamp(), err:(e&&e.message)||"failed", tries:((rec.sub&&rec.sub.tries)||0)+1 };
-    subEnqueue(rec.id, rec.sub.err); save();
-    throw e;
-  });
-}
-
-function subFlush(manual){
-  if(SUB_BUSY){ if(manual) toast("A sync is already running…"); return Promise.resolve(); }
-  if(!subOn()){
-    if(manual) alert("No head-office endpoint is set on this device yet.\n\nAdmin → Head-office submission → paste the link head office gave you, then Save. Until then, finish audits normally and send the ⛃ Backup file.");
-    updateSyncChip(); return Promise.resolve();
-  }
-  var q=(state.submitQueue||[]).slice();
-  if(!q.length){ if(manual) toast("Nothing waiting — every completed audit is already with head office."); updateSyncChip(); return Promise.resolve(); }
-  if(!navigator.onLine){
-    if(manual) toast(q.length+" audit"+(q.length===1?"":"s")+" waiting — you are offline. They send themselves when you reconnect.");
-    updateSyncChip(); return Promise.resolve();
-  }
-  SUB_BUSY=true; updateSyncChip();
-  var sent=0, stopErr="";
-  return q.reduce(function(p,item){
-    return p.then(function(){
-      if(stopErr) return;                       /* first failure stops the run — the rest fail identically */
-      var rec=recById(item.recId);
-      if(!rec){ subDequeue(item.recId); return; }
-      return subOne(rec).then(function(){ sent++; }, function(e){ stopErr=(e&&e.message)||"failed"; });
-    });
-  }, Promise.resolve()).then(function(){
-    SUB_BUSY=false; save(); updateSyncChip();
-    var left=subPending();
-    if(state.active===HISTORY&&VIEW_REC) renderMain();
-    if(!stopErr){
-      clearBanner("subfail");
-      if(sent) toast(sent+" audit"+(sent===1?"":"s")+" sent to head office ✓");
-    } else if(manual){
-      alert("Couldn't send to head office:\n\n"+stopErr+"\n\n"+(sent?sent+" audit(s) did go through. ":"")+left+" still waiting.\n\nNothing is lost — the audits stay on this device and retry automatically. If the connection here is hopeless, use ⛃ Backup and send that file instead.");
-    } else {
-      setBanner("subfail","warn",left+" completed audit"+(left===1?"":"s")+" could not reach head office — "+esc(stopErr),
-        "Nothing is lost: they are saved on this device and retry automatically (or tap ⇪ Sync). A ⛃ Backup file works as a manual fallback.");
-    }
-  });
-}
-
-/* Fire-and-forget send right after an audit is locked. */
-function subAfterComplete(rec){
-  if(!subOn()) return;
-  subEnqueue(rec.id,"");
-  save(); updateSyncChip();
-  if(!subCfg().auto) return;
-  if(!navigator.onLine){ toast("Saved — it will reach head office automatically when you are back online."); return; }
-  subFlush(false);
-}
-
-function subChipHTML(rec){
-  if(!subOn()) return '<span class="subchip off">⇪ head-office sending is off</span>';
-  var s=rec.sub;
-  if(s&&s.st==="sent") return '<span class="subchip sent">✓ sent to head office · '+esc(s.at||"")+'</span>';
-  if(s&&s.st==="error") return '<span class="subchip err">⚠ not sent — '+esc(s.err||"failed")+'</span>';
-  if(subQueued(rec.id)) return '<span class="subchip queued">⏳ waiting to send</span>';
-  return '<span class="subchip queued">⏳ not sent yet</span>';
-}
-
-function subTest(){
-  var c=subCfg(), out=document.getElementById("subTestOut");
-  if(!c.url){ if(out) out.textContent="Paste the head-office link first, then Save."; return; }
-  if(out) out.textContent="Testing…";
-  subPost(c.url,{ v:1, token:c.token||"", ping:true, app:APP_BUILD, submittedAt:nowStamp(), device:String(navigator.userAgent||"").slice(0,180) })
-    .then(function(j){ if(out) out.textContent="✓ Connected. Head office answered: "+(j.msg||"ok")+(j.sheet?" ("+j.sheet+")":""); },
-          function(e){ if(out) out.textContent="✗ "+((e&&e.message)||"failed")+"\nCheck: the link ends in /exec, the Apps Script deployment access is \"Anyone\", and the token matches."; });
-}
-
-/* ---- Service worker / installability ---- */
+/* ---- Hosted mode (a real web address) ----
+   Everything the phones kept breaking on — storage tied to whichever app opened the file, an unavailable
+   photo database, updates that had to be re-sent by hand — is a consequence of running as a file. Served
+   from one https address all of that goes away, so here the app registers a service worker (offline use)
+   and offers a real install instead of the "save a copy to Downloads" workaround. */
+var HOSTED=(location.protocol==="http:"||location.protocol==="https:");
+var INSTALL_PROMPT=null;
 function initServiceWorker(){
-  if(!("serviceWorker" in navigator)) return;
-  if(location.protocol==="file:") return;   /* a downloaded single-file copy has no SW scope */
+  if(!("serviceWorker" in navigator)||!HOSTED) return;
   navigator.serviceWorker.register("sw.js").then(function(reg){
     reg.addEventListener("updatefound", function(){
       var nw=reg.installing; if(!nw) return;
       nw.addEventListener("statechange", function(){
-        /* An existing controller means this is an UPDATE, not the first install. Never reload on
-           the auditor's behalf — they may be mid-audit — just offer it. */
+        /* A controller already present means this is an UPDATE. Never reload on the auditor's behalf —
+           they may be mid-audit — just offer it. */
         if(nw.state==="installed"&&navigator.serviceWorker.controller){
           setBanner("swupdate","info","A newer version of the audit app is ready. <button class=\"btn sm\" data-swreload=\"1\">Reload now</button>",
             "Your drafts, completed audits and photos are untouched by an update. Finish what you are doing first if you prefer.");
@@ -3005,19 +3160,39 @@ function initServiceWorker(){
     });
   }).catch(function(){});
 }
+function initInstall(){
+  if(!HOSTED) return;
+  window.addEventListener("beforeinstallprompt", function(e){ e.preventDefault(); INSTALL_PROMPT=e; syncInstallUI(); });
+  window.addEventListener("appinstalled", function(){ INSTALL_PROMPT=null; syncInstallUI(); toast("Installed. Open “FO Audit” from the home screen from now on."); });
+  syncInstallUI();
+}
+function installedStandalone(){
+  return (window.matchMedia&&window.matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true;
+}
+function syncInstallUI(){
+  var b=document.getElementById("saveAppBtn"); if(!b||!HOSTED) return;
+  if(installedStandalone()){ b.style.display="none"; return; }
+  b.style.display="";
+  b.textContent="📲 Install app";
+  b.title="Add the audit app to this phone's home screen. Everything stays at one web address, so audits are never split between copies.";
+}
+function doInstall(){
+  if(INSTALL_PROMPT){ INSTALL_PROMPT.prompt(); INSTALL_PROMPT=null; return; }
+  alert("To install:\n\nChrome (Android): tap the ⋮ menu → “Add to Home screen” / “Install app”.\niPhone (Safari): tap Share → “Add to Home Screen”.\n\nThen always open the app from that home-screen icon.");
+}
 
 /* ---- Wire ---- */
-document.getElementById("syncBtn").addEventListener("click", function(){ subFlush(true); });
-document.getElementById("banners").addEventListener("click", function(e){
-  var b=e.target&&e.target.closest?e.target.closest("[data-swreload]"):null;
-  if(b) location.reload();
-});
-window.addEventListener("online", function(){ updateSyncChip(); if(subPending()) subFlush(false); });
-window.addEventListener("offline", updateSyncChip);
 document.getElementById("completeBtn").addEventListener("click", completeAudit);
+document.getElementById("saveAppBtn").addEventListener("click", function(){ if(HOSTED) doInstall(); else saveAppToDevice(); });
+document.getElementById("banners").addEventListener("click", function(ev){
+  if(!ev.target.closest) return;
+  if(ev.target.closest("[data-swreload]")) { location.reload(); return; }
+  if(ev.target.closest("[data-saveapp]")) { if(HOSTED) doInstall(); else saveAppToDevice(); }
+});
 document.getElementById("csvBtn").addEventListener("click", exportCSV);
 document.getElementById("printBtn").addEventListener("click", function(){ printAudit(state.active===HISTORY&&VIEW_REC?recById(VIEW_REC):null); });
 window.addEventListener("beforeprint", function(){ if(!PRINT_READY) renderPrintVM(vmFrom(state.active===HISTORY&&VIEW_REC?recById(VIEW_REC):null),{}); });
+window.addEventListener("afterprint", function(){ PRINT_READY=false; });
 document.getElementById("backupBtn").addEventListener("click", exportBackup);
 document.getElementById("clearBtn").addEventListener("click", discardDraft);
 document.getElementById("menuBtn").addEventListener("click", openDrawer);
@@ -3035,10 +3210,12 @@ document.getElementById("photoModal").addEventListener("click", function(e){ if(
 /* Cross-tab sync: another tab saving is adopted here immediately instead of being
    silently overwritten by this tab's next save (v6 lost data this way). */
 window.addEventListener("storage", function(ev){
-  if(ev.key!==STORE_KEY||ev.newValue==null) return;
-  try{ state=fixup(mergeState(JSON.parse(ev.newValue))); }catch(e){ return; }
+  if((ev.key!==STORE_KEY&&ev.key!==DRAFT_KEY)||ev.newValue==null) return;
+  var raw=readKey(STORE_KEY); if(raw===null) return;
+  try{ state=fixup(overlayDrafts(mergeState(JSON.parse(raw)))); }catch(e){ return; }
+  LAST_MAIN=null; LAST_DRAFT=null; /* the other tab wrote storage — our change-detection cache is stale */
   reinitSets();
-  syncHeaderInputs(); syncTypeUI(); renderSidebar(); renderMain(); updateHeader(); updateSyncChip();
+  syncHeaderInputs(); syncTypeUI(); renderSidebar(); renderMain(); updateHeader();
   toast("Updated with changes from another tab.");
 });
 window.addEventListener("beforeunload", function(e){
@@ -3047,17 +3224,20 @@ window.addEventListener("beforeunload", function(e){
 
 (function init(){
   try{ localStorage.setItem("__fo_probe","1"); localStorage.removeItem("__fo_probe"); }
-  catch(e){ setBanner("private","err","⚠ This browser is blocking storage (private/incognito mode, or site data blocked). NOTHING you enter will be kept after this tab closes.","Open the file in a normal browser window to audit for real."); }
+  catch(e){
+    if(/^(content|blob|data):/.test(location.protocol)) setBanner("private","err","⚠ This file was opened straight from another app (WhatsApp, Gmail, a file viewer). In this mode the browser keeps NOTHING — every answer and photo is lost when the tab closes.","Tap <button class=\"btn\" data-saveapp=\"1\">⤓ Save app to phone</button> then open it from the Files app → Downloads in Chrome. Audits done from there are kept on the device.");
+    else setBanner("private","err","⚠ This browser is blocking storage (private/incognito mode, or site data blocked). NOTHING you enter will be kept after this tab closes.","Open the file in a normal browser window to audit for real.");
+  }
+  /* On Android the Files app ALSO hands the file to Chrome as content://, so the scheme alone says nothing.
+     What matters is whether storage survives between opens: a marker from a previous run proves it does. */
+  var seenBefore=false; try{ seenBefore=!!localStorage.getItem(SEEN_KEY); localStorage.setItem(SEEN_KEY, String(Date.now())); }catch(e){}
+  if(location.protocol==="content:"&&!BANNERS.private&&!seenBefore) setBanner("fromapp","info","First run in this storage. If you have audited on this phone before and those audits are not showing, this copy was opened in a way that does not keep data (e.g. straight from WhatsApp).","Tap <button class=\"btn\" data-saveapp=\"1\">⤓ Save app to phone</button> once, then open it from the Files app → Downloads. This notice disappears once the app sees its own data again.");
   if(BOOT_CORRUPT) setBanner("corrupt","err","⚠ The saved audit data could not be read (it was corrupted). It has NOT been deleted — a recovery copy was quarantined in browser storage.","The app started fresh. If you have a JSON backup, restore it from Admin → Data. Otherwise contact support with the quarantined copy (localStorage key starting with flameon_ops_audit_corrupt_).");
   if(BOOT_MIGRATED) setBanner("migrated","info","Your existing audits were migrated from the previous version ("+BOOT_MIGRATED+") — nothing was lost.","The old data was left in place untouched, and an extra backup copy was stored under "+(BOOT_MIGRATED==="v7"?BACKUP_V7_KEY:(BOOT_MIGRATED==="v6"?BACKUP_V6_KEY:BACKUP_V5_KEY))+". Consider downloading a ⛃ Backup now.");
   syncQsOnBoot(); /* cross-device stale-questionnaire fix: reconcile cached sets with this file's embedded versions */
-  idb().catch(function(){});
+  idb().then(function(){ schedulePhotoMigration(); },function(e){ return cacheProbe().then(function(){ useFallback(e); updateStorageMeter(); schedulePhotoMigration(); }); });
   bindHeader(); renderBanners(); renderSidebar(); renderMain(); updateHeader();
-  initServiceWorker();
-  updateSyncChip();
-  /* Anything left queued from a previous session goes out as soon as the app opens online. */
-  if(subOn()&&subPending()&&navigator.onLine) setTimeout(function(){ subFlush(false); },1200);
+  initServiceWorker(); initInstall();
+  applyResume();
 })();
-</script>
-</body>
-</html>
+</script></body></html>
