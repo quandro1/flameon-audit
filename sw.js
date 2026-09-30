@@ -9,7 +9,7 @@
  * Devices keep serving the cached copy until the cache name changes. Change the version below
  * on every deploy, or auditors will keep running the old questionnaire.
  */
-var CACHE = "flameon-audit-v8.0.5";
+var CACHE = "flameon-audit-v8.0.6";
 
 var SHELL = [
   "./",

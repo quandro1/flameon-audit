@@ -410,7 +410,7 @@
       <span class="name">FLAME <b>ON</b></span>
     </span>
     <h1>Operations Audit</h1>
-    <div class="code">Doc <b>FO-STD-001</b><br>Multi-branch · v8.0.5 · <span id="qsMastV">Questionnaire —</span></div>
+    <div class="code">Doc <b>FO-STD-001</b><br>Multi-branch · v8.0.6 · <span id="qsMastV">Questionnaire —</span></div>
   </div>
 </div>
 
@@ -514,7 +514,7 @@ var ALLCATN = {}; (function(){ Object.keys(CATNAMES).forEach(function(c){ALLCATN
 /* ---- Questionnaire version stamps EMBEDDED IN THIS FILE — the single source of truth.
    Bump a set's number whenever its DEFAULT content changes in a shipped file; devices
    holding an older cached questionnaire sync to this on load (see syncQsOnBoot). ---- */
-var APP_BUILD="v8.0.5 (2026-09-26)";
+var APP_BUILD="v8.0.6 (2026-09-30)";
 var QS_FILE={ full:2, daily:2, wh:1, whdaily:1 };
 var SETNAMES={ full:"Full audit (restaurant)", daily:"Daily checks (restaurant)", wh:"Warehouse audit", whdaily:"Warehouse daily checks" };
 /* ---- Branch -> questionnaire profile. Admin-configurable via state.branchProfiles. ---- */
@@ -523,7 +523,7 @@ var PROFILES={ restaurant:"Restaurant", warehouse:"Warehouse / central store" };
 var CRITICAL = ["Undercooked chicken / protein","Expired product in use or storage","Pest activity","Missing HACCP / food-safety records","Foreign object found in food","Verified food-poisoning complaint","Deliberate SOP violation"];
 var BRANCHES = ["Abbottabad Main Branch","Delco","Murree Road Branch","Haripur Branch","Warehouse"];
 var CAPA_STATUSES=["Open","In Progress","Verified Closed"];
-var PHOTO_CAP=50, PHOTO_MAX_BYTES=200*1024, PHOTO_MAX_DIM=1280; /* photos live in IndexedDB, not localStorage — the cap only bounds the backup file size */
+var PHOTO_CAP=75, PHOTO_MAX_BYTES=200*1024, PHOTO_MAX_DIM=1280; /* photos live in IndexedDB, not localStorage — the cap only bounds the backup file size */
 var TREND_WINDOW=12; /* most recent audits per branch shown on the trend chart */
 
 var TYPE_ORDER=["daily","weekly","monthly","quarterly"];
