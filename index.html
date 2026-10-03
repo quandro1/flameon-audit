@@ -410,7 +410,7 @@
       <span class="name">FLAME <b>ON</b></span>
     </span>
     <h1>Operations Audit</h1>
-    <div class="code">Doc <b>FO-STD-001</b><br>Multi-branch · v8.0.6 · <span id="qsMastV">Questionnaire —</span></div>
+    <div class="code">Doc <b>FO-STD-001</b><br>Multi-branch · v8.0.7 · <span id="qsMastV">Questionnaire —</span></div>
   </div>
 </div>
 
@@ -430,7 +430,7 @@
       <select id="fldBranch" data-branch="">
         <option value="">Select branch…</option>
         <option>Abbottabad Main Branch</option><option>Delco</option>
-        <option>Murree Road Branch</option><option>Haripur Branch</option><option>Warehouse</option>
+        <option>Murree Road Branch</option><option>Haripur Branch</option><option>Warehouse</option><option>Commissary</option>
       </select>
     </div>
     <div class="field"><label for="fldDate">Audit date</label><input id="fldDate" type="date" data-aud="date"></div>
@@ -490,6 +490,7 @@ var BAKED_DAILY=(window.__FO_BAKED_DAILY__&&window.__FO_BAKED_DAILY__.length)?wi
 var BAKED_ADMIN=window.__FO_BAKED_ADMIN__||null;
 var BAKED_WH=(window.__FO_BAKED_WH__&&window.__FO_BAKED_WH__.length)?window.__FO_BAKED_WH__:null;
 var BAKED_WHDAILY=(window.__FO_BAKED_WHDAILY__&&window.__FO_BAKED_WHDAILY__.length)?window.__FO_BAKED_WHDAILY__:null;
+var BAKED_COMM=(window.__FO_BAKED_COMM__&&window.__FO_BAKED_COMM__.length)?window.__FO_BAKED_COMM__:null;
 var BAKED_PROFILES=window.__FO_BAKED_PROFILES__||null;
 var authed=false;
 var BS=String.fromCharCode(92);
@@ -510,18 +511,23 @@ var CATSHORT = {product:"Product", safety:"Safety", service:"Service", clean:"Cl
 var WCATWEIGHTS = { wh_cold:20, wh_goods:15, wh_store:15, wh_pest:10, wh_hyg:10, wh_disp:10, wh_prod:10, wh_doc:5, wh_safe:5 };
 var WCATNAMES = { wh_cold:"Cold Chain", wh_goods:"Goods-in & Suppliers", wh_store:"Storage & Stock Control", wh_pest:"Pest Control", wh_hyg:"Hygiene & Staff", wh_disp:"Dispatch & Distribution", wh_prod:"Central Production", wh_doc:"Traceability & Documentation", wh_safe:"Safety & Facility" };
 var WCATSHORT = { wh_cold:"Cold", wh_goods:"Goods-in", wh_store:"Storage", wh_pest:"Pest", wh_hyg:"Hygiene", wh_disp:"Dispatch", wh_prod:"Production", wh_doc:"Docs", wh_safe:"Safety" };
-var ALLCATN = {}; (function(){ Object.keys(CATNAMES).forEach(function(c){ALLCATN[c]=CATNAMES[c];}); Object.keys(WCATNAMES).forEach(function(c){ALLCATN[c]=WCATNAMES[c];}); })();
+/* ---- Commissary (central production unit) weights. Recipe and process compliance is what the
+   commissary exists to deliver, so it carries the largest share; the rest is food safety. ---- */
+var CCATWEIGHTS = { comm_prod:40, comm_staff:15, comm_store:15, comm_clean:15, comm_fac:15 };
+var CCATNAMES = { comm_prod:"Production & Recipe Compliance", comm_staff:"Hygiene & Staff Health", comm_store:"Storage & Chemical Safety", comm_clean:"Cleaning & Sanitation", comm_fac:"Facility & Pest Control" };
+var CCATSHORT = { comm_prod:"Production", comm_staff:"Hygiene", comm_store:"Storage", comm_clean:"Cleaning", comm_fac:"Facility" };
+var ALLCATN = {}; (function(){ Object.keys(CATNAMES).forEach(function(c){ALLCATN[c]=CATNAMES[c];}); Object.keys(WCATNAMES).forEach(function(c){ALLCATN[c]=WCATNAMES[c];}); Object.keys(CCATNAMES).forEach(function(c){ALLCATN[c]=CCATNAMES[c];}); })();
 /* ---- Questionnaire version stamps EMBEDDED IN THIS FILE — the single source of truth.
    Bump a set's number whenever its DEFAULT content changes in a shipped file; devices
    holding an older cached questionnaire sync to this on load (see syncQsOnBoot). ---- */
-var APP_BUILD="v8.0.6 (2026-09-30)";
-var QS_FILE={ full:2, daily:2, wh:1, whdaily:1 };
-var SETNAMES={ full:"Full audit (restaurant)", daily:"Daily checks (restaurant)", wh:"Warehouse audit", whdaily:"Warehouse daily checks" };
+var APP_BUILD="v8.0.7 (2026-10-03)";
+var QS_FILE={ full:2, daily:2, wh:1, whdaily:1, comm:1 };
+var SETNAMES={ full:"Full audit (restaurant)", daily:"Daily checks (restaurant)", wh:"Warehouse audit", whdaily:"Warehouse daily checks", comm:"Commissary audit" };
 /* ---- Branch -> questionnaire profile. Admin-configurable via state.branchProfiles. ---- */
-var PROFILE_DEFAULT={ "Warehouse":"warehouse" };
-var PROFILES={ restaurant:"Restaurant", warehouse:"Warehouse / central store" };
+var PROFILE_DEFAULT={ "Warehouse":"warehouse", "Commissary":"commissary" };
+var PROFILES={ restaurant:"Restaurant", warehouse:"Warehouse / central store", commissary:"Commissary / production unit" };
 var CRITICAL = ["Undercooked chicken / protein","Expired product in use or storage","Pest activity","Missing HACCP / food-safety records","Foreign object found in food","Verified food-poisoning complaint","Deliberate SOP violation"];
-var BRANCHES = ["Abbottabad Main Branch","Delco","Murree Road Branch","Haripur Branch","Warehouse"];
+var BRANCHES = ["Abbottabad Main Branch","Delco","Murree Road Branch","Haripur Branch","Warehouse","Commissary"];
 var CAPA_STATUSES=["Open","In Progress","Verified Closed"];
 var PHOTO_CAP=75, PHOTO_MAX_BYTES=200*1024, PHOTO_MAX_DIM=1280; /* photos live in IndexedDB, not localStorage — the cap only bounds the backup file size */
 var TREND_WINDOW=12; /* most recent audits per branch shown on the trend chart */
@@ -1071,6 +1077,16 @@ function runSelfTest(){
 
   /* ---- v8: warehouse question set + branch->profile mapping ---- */
   T("Warehouse category weights sum to 100", Object.keys(WCATWEIGHTS).reduce(function(a,c){return a+WCATWEIGHTS[c];},0), 100);
+  /* ---- commissary question set + profile ---- */
+  T("Commissary category weights sum to 100", Object.keys(CCATWEIGHTS).reduce(function(a,c){return a+CCATWEIGHTS[c];},0), 100);
+  T("Branch mapping: Commissary -> commissary profile", branchProfile("Commissary"), "commissary");
+  var CS=normalize(COMM_DEFAULT_SECTIONS);
+  T("Commissary set line count", CS.reduce(function(a,s){return a+s.checks.length;},0), 31);
+  T("Every commissary section has a weighted category", CS.every(function(s){ return !!CCATWEIGHTS[s.cat]; }), true);
+  var csc={}; CS.forEach(function(s){ s.checks.forEach(function(ch){ csc[s.id+"||"+ch.id]="yes"; }); });
+  T("Commissary all-yes scores 100", pureFullResult(CS,CCATWEIGHTS,csc,{},CRITICAL).score, 100);
+  var csc2=Object.assign({},csc); CS.forEach(function(s){ s.checks.forEach(function(ch){ if(ch.crit) csc2[s.id+"||"+ch.id]="no"; }); });
+  T("Commissary crit question answered No forces fail", pureFullResult(CS,CCATWEIGHTS,csc2,{},CRITICAL).fail, true);
   T("Branch mapping: Warehouse -> warehouse profile", branchProfile("Warehouse"), "warehouse");
   T("Branch mapping: restaurant branch -> restaurant profile", branchProfile("Delco"), "restaurant");
   var WS=normalize(WH_DEFAULT_SECTIONS);
@@ -1092,6 +1108,62 @@ function runSelfTest(){
 }
 window.FO_SELFTEST=runSelfTest;
 
+/* ---- Commissary question set (central production unit) ----
+   Source: "Audit for commissary.pdf" — 31 standards in 13 categories, grouped here into 9 sections so the
+   sidebar reads like the other sets. The PDF's second page (open questions for the auditor) is folded into
+   the Look-for cues, which is where this tool puts "ask the staff" prompts. */
+var COMM_DEFAULT_SECTIONS = [
+  { id:"comm-tikka", name:"Tikka Chicken", grp:"Production", cat:"comm_prod", checks:[
+    {id:"comm-tikka-0", q:"Marination time to spec", lk:"marination log shows 18 hours for the batch in use; never below the 3-hour minimum", rf:"batch marinated under 3 hours, or no marination time recorded"},
+    {id:"comm-tikka-1", q:"Baked at 320-330°C for 22 minutes", crit:true, lk:"oven set between 320°C and 330°C and the batch timed at a full 22 minutes; cut a piece from the middle of the tray — cooked through, no pink", rf:"oven outside 320-330°C, time cut short, or pink at the centre — answer No AND tick the Undercooked protein gate box"},
+    {id:"comm-tikka-2", q:"Holding and freezing after cooking", lk:"cooked batch held 3 hours, then frozen 18 hours before it goes to cutting", rf:"cut or packed before the 3-hour hold and 18-hour freeze are complete"},
+    {id:"comm-tikka-3", q:"Cutting at -18°C", lk:"probe the batch at the cutting table: -18°C and still hard", rf:"product soft or thawing when it reaches cutting"},
+    {id:"comm-tikka-4", q:"Packed 2 kg with a 10-day MRD", spec:true, lk:"scale-check 3 packs at 2 kg; every pack labelled with an MRD no more than 10 days out", rf:"off-weight packs, missing label, or MRD beyond 10 days"}
+  ]},
+  { id:"comm-malai", name:"Malai Chicken", grp:"Production", cat:"comm_prod", checks:[
+    {id:"comm-malai-0", q:"Marinated at 1-4°C for 40 minutes", lk:"probe the marination chiller at 1-4°C; batch marinated at least 40 minutes, 3 hours preferred", rf:"marinated above 4°C, or under 40 minutes"},
+    {id:"comm-malai-1", q:"Full 40-minute cook time", lk:"timer run for the full 40 minutes on the batch being cooked", rf:"batch pulled early to keep up with demand"},
+    {id:"comm-malai-2", q:"Cut at -18°C, packed 2 kg, 10-day MRD", spec:true, lk:"probe at cutting: -18°C; scale-check 3 packs at 2 kg; MRD no more than 10 days out", rf:"soft product at cutting, off-weight packs, or a missing or longer MRD"}
+  ]},
+  { id:"comm-fillet", name:"Wrap & Fillet Prep", grp:"Production", cat:"comm_prod", checks:[
+    {id:"comm-fillet-0", q:"Wrap fillet prepared to SOP", lk:"washing, cutting and marination follow the fillet SOP, in order, with the SOP present at the station", rf:"steps skipped or out of order, or staff working from memory with no SOP at the station"},
+    {id:"comm-fillet-1", q:"Wrap fillet MRD 15 days", lk:"every wrap fillet pack labelled with an MRD no more than 15 days out", rf:"unlabelled packs, or an MRD beyond 15 days"},
+    {id:"comm-fillet-2", q:"Frozen fillet thawed before hammering", lk:"fillet fully thawed at room temperature before it is hammered", rf:"hammered part-frozen, or thawed in hot water or in the sun"},
+    {id:"comm-fillet-3", q:"Burger/steak fillet MRD 15 days", lk:"every burger and steak fillet pack labelled with an MRD no more than 15 days out", rf:"unlabelled packs, or an MRD beyond 15 days"}
+  ]},
+  { id:"comm-patty", name:"Beef Patty", grp:"Production", cat:"comm_prod", checks:[
+    {id:"comm-patty-0", q:"Fresh beef only", crit:true, lk:"beef in use is fresh and in date — colour, smell and the delivery record all check out", rf:"stale, off-smelling or out-of-date beef going into the mix — answer No AND tick the Expired product gate box"},
+    {id:"comm-patty-1", q:"Kidney fat thawed before use", lk:"kidney-side fat fully thawed before it goes into the mince", rf:"part-frozen fat going into the mix"},
+    {id:"comm-patty-2", q:"Patty weight 100 g", spec:true, lk:"scale-check 5 patties from the batch: each 100 g", rf:"any patty over or under 100 g"},
+    {id:"comm-patty-3", q:"Frozen at -18°C with a 20-day MRD", lk:"freezer at or below -18°C; every pack labelled with an MRD no more than 20 days out", rf:"freezer above -18°C, missing label, or MRD beyond 20 days"}
+  ]},
+  { id:"comm-sauce", name:"Sauces", grp:"Production", cat:"comm_prod", checks:[
+    {id:"comm-sauce-0", q:"Mayo-based sauces 1-4°C, 3-day MRD", lk:"probe the sauce chiller at 1-4°C; every mayo-based sauce labelled with a 3-day MRD", rf:"above 4°C, unlabelled, or still in use past 3 days"},
+    {id:"comm-sauce-1", q:"Grill Wings sauce 1-4°C, 15-day MRD", lk:"held at 1-4°C and labelled with a 15-day MRD", rf:"above 4°C, unlabelled, or still in use past 15 days"},
+    {id:"comm-sauce-2", q:"Other cooked sauces 1-4°C, 8-day MRD", lk:"all remaining cooked sauces held at 1-4°C and labelled with an 8-day MRD", rf:"above 4°C, unlabelled, or still in use past 8 days"}
+  ]},
+  { id:"comm-clean", name:"Cleaning & Sanitation", grp:"Facility & Hygiene", cat:"comm_clean", checks:[
+    {id:"comm-clean-0", q:"Equipment and utensils clean", lk:"check 5 items in use — mixer, trays, knives, boards, containers: clean, no food residue or grease", rf:"residue, grease or dirty utensils in use"},
+    {id:"comm-clean-1", q:"Production area and shelves cleaned daily", lk:"ask the time of today's clean and which chemical was used; shelves and work surfaces clean", rf:"no daily clean done, no chemical named, or visibly dirty shelves"},
+    {id:"comm-clean-2", q:"Grill and dishwashing areas clean", lk:"no grease build-up on or behind the grill; dishwash area clear and drains running", rf:"grease build-up, standing water, or waste left in the dishwash area"}
+  ]},
+  { id:"comm-staff", name:"Personal Hygiene & Staff Health", grp:"Facility & Hygiene", cat:"comm_staff", checks:[
+    {id:"comm-staff-0", q:"Visors and beard nets worn", lk:"every person on the production floor in a visor, and a beard net where needed", rf:"anyone on the floor without a visor or beard net"},
+    {id:"comm-staff-1", q:"Hand-washing SOP followed", lk:"ask when hands were last washed and watch one wash: all 6 steps, soap, and proper drying", rf:"washing skipped between tasks, or steps, soap or drying missing"},
+    {id:"comm-staff-2", q:"Staff fit for food handling", crit:true, lk:"nobody on duty with flu, stomach illness, an open cut or a skin infection; any cut covered with a blue detectable dressing", rf:"anyone sick or with an uncovered wound handling food"}
+  ]},
+  { id:"comm-store", name:"Storage & Chemical Safety", grp:"Facility & Hygiene", cat:"comm_store", checks:[
+    {id:"comm-store-0", q:"Holding and storage arranged", lk:"everything off the floor and covered, raw below ready-to-eat, oldest to the front", rf:"items on the floor, left uncovered, or raw stored above ready-to-eat"},
+    {id:"comm-store-1", q:"Spices in sealed containers", lk:"all spices in airtight, labelled containers", rf:"open or torn bags, or unlabelled tubs"},
+    {id:"comm-store-2", q:"Chemicals stored away from food", crit:true, lk:"cleaning chemicals in their own marked area, never above or beside food or packaging", rf:"any chemical stored with, above or beside food or packaging"}
+  ]},
+  { id:"comm-fac", name:"Facility & Pest Control", grp:"Facility & Hygiene", cat:"comm_fac", checks:[
+    {id:"comm-fac-0", q:"Restroom clean and stocked", lk:"restroom clean, with soap, tissue and a working way to dry hands", rf:"dirty restroom, or soap, tissue or hand drying missing"},
+    {id:"comm-fac-1", q:"Building fabric sound", lk:"no roof leaks or damp patches over production; walls and ceilings intact and washable", rf:"roof leaking, damp patches, or damaged walls above food areas"},
+    {id:"comm-fac-2", q:"Fumigation record and no pest activity", crit:true, lk:"fumigation record present and in date; check corners, drains and the backs of racking — no droppings, insects or gnaw marks", rf:"record missing or out of date, or any sign of pests — answer No AND tick the Pest activity gate box"}
+  ]}
+];
+
 /* =====================================================================
    STATE & PERSISTENCE (schema v7)
    - Key flameon_ops_audit_v7; migrates read-only from v6 then v5, and
@@ -1105,8 +1177,8 @@ var SAVE_FAILED=false, PENDING_ASYNC=0, BOOT_CORRUPT=false, BOOT_MIGRATED="";
 var VIEW_REC=null; /* record id open in the History view (transient) */
 var DASH_FROM="", DASH_TO=""; /* dashboard date-range filter (transient) */
 
-function blank(){ return { schemaVersion:8, config:null, dconfig:null, wconfig:null, wdconfig:null, admin:null, settings:{capaDueDays:7}, branchProfiles:{},
-  qsMeta:{ full:{base:QS_FILE.full,edits:0}, daily:{base:QS_FILE.daily,edits:0}, wh:{base:QS_FILE.wh,edits:0}, whdaily:{base:QS_FILE.whdaily,edits:0} },
+function blank(){ return { schemaVersion:8, config:null, dconfig:null, wconfig:null, wdconfig:null, cconfig:null, admin:null, settings:{capaDueDays:7}, branchProfiles:{},
+  qsMeta:{ full:{base:QS_FILE.full,edits:0}, daily:{base:QS_FILE.daily,edits:0}, wh:{base:QS_FILE.wh,edits:0}, whdaily:{base:QS_FILE.whdaily,edits:0}, comm:{base:QS_FILE.comm,edits:0} },
   auditType:"weekly", dashType:"weekly", currentBranch:"", data:{daily:{},weekly:{},monthly:{},quarterly:{}}, history:[], active:OVERVIEW }; }
 /* Merge stored/imported state over blank(). CRITICAL SUBTLETY: blank() carries THIS FILE's
    qsMeta stamps; if the stored data predates qsMeta (v5/v6/v7), letting blank()'s stamps
@@ -1118,8 +1190,10 @@ function mergeState(p){
   if(!p || !p.qsMeta){
     d.qsMeta={ full:{base:1, edits:Math.max(0,((p&&p.qsVersion)||1)-1)},
                daily:{base:1, edits:Math.max(0,((p&&p.dqsVersion)||1)-1)},
-               wh:{base:0, edits:0}, whdaily:{base:0, edits:0} };
+               wh:{base:0, edits:0}, whdaily:{base:0, edits:0}, comm:{base:0, edits:0} };
   }
+  /* a device that predates the commissary set must adopt this file's stamp quietly, not be told its set is stale */
+  if(d.qsMeta && !d.qsMeta.comm) d.qsMeta.comm={base:0, edits:0};
   return d;
 }
 function emptyAudit(){ return { scores:{},notes:{},capa:{},critical:{},photos:{}, date:todayISO(), by:"",designation:"",item:"",shift:"", sigAuditor:"",sigManager:"",sigOps:"",followup:"", status:"draft", amendmentOf:null, amendReason:"" }; }
@@ -1145,9 +1219,10 @@ function fixup(d){
     d.qsMeta={
       full:{base:1, edits:Math.max(0,(d.qsVersion||1)-1)},
       daily:{base:1, edits:Math.max(0,(d.dqsVersion||1)-1)},
-      wh:{base:0, edits:0}, whdaily:{base:0, edits:0}
+      wh:{base:0, edits:0}, whdaily:{base:0, edits:0}, comm:{base:0, edits:0}
     };
   }
+  if(!d.qsMeta.comm) d.qsMeta.comm={base:0, edits:0};
   ["full","daily","wh","whdaily"].forEach(function(s){
     if(!d.qsMeta[s]||typeof d.qsMeta[s]!=="object") d.qsMeta[s]={base:0,edits:0};
     if(!(d.qsMeta[s].base>=0)) d.qsMeta[s].base=0;
@@ -1291,12 +1366,13 @@ var QS_BUMPED={full:false,daily:false,wh:false,whdaily:false};
 function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
 var state = load();
-var SECTIONS, DSECTIONS, WSECTIONS, WDSECTIONS;
+var SECTIONS, DSECTIONS, WSECTIONS, WDSECTIONS, CSECTIONS;
 function reinitSets(){
   SECTIONS  = normalize(state.config  && state.config.length  ? state.config  : (BAKED_CONFIG  || DEFAULT_SECTIONS));
   DSECTIONS = normalize(state.dconfig && state.dconfig.length ? state.dconfig : (BAKED_DAILY   || DAILY_DEFAULT_SECTIONS));
   WSECTIONS = normalize(state.wconfig && state.wconfig.length ? state.wconfig : (BAKED_WH      || WH_DEFAULT_SECTIONS));
   WDSECTIONS= normalize(state.wdconfig&& state.wdconfig.length? state.wdconfig: (BAKED_WHDAILY || WH_DAILY_DEFAULT_SECTIONS));
+  CSECTIONS = normalize(state.cconfig && state.cconfig.length ? state.cconfig : (BAKED_COMM || COMM_DEFAULT_SECTIONS));
 }
 reinitSets();
 if(!state.admin && BAKED_ADMIN) state.admin = BAKED_ADMIN;
@@ -1318,7 +1394,7 @@ try{ if(!localStorage.getItem(STORE_KEY)) save(); }catch(e){}
    Completed audits are untouched either way — each locked record renders
    from its own embedded snapshot forever.
    ===================================================================== */
-function setConfigKey(set){ return set==="full"?"config":(set==="daily"?"dconfig":(set==="wh"?"wconfig":"wdconfig")); }
+function setConfigKey(set){ return set==="full"?"config":(set==="daily"?"dconfig":(set==="wh"?"wconfig":(set==="comm"?"cconfig":"wdconfig"))); }
 function fileStamp(set){
   var b=window.__FO_BAKED_QSV__;
   if(b&&b[set]&&b[set].base>0) return {base:b[set].base, edits:b[set].edits||0};
@@ -1326,13 +1402,16 @@ function fileStamp(set){
 }
 function qsLabel(set){ var m=(state.qsMeta&&state.qsMeta[set])||{base:1,edits:0}; return "v"+m.base+(m.edits>0?"."+m.edits:""); }
 function qsNewer(a,b){ return a.base>b.base || (a.base===b.base && (a.edits||0)>(b.edits||0)); }
-function activeSetKey(){ var wh=curProfile()==="warehouse"; return isDaily()?(wh?"whdaily":"daily"):(wh?"wh":"full"); }
+/* The commissary runs one set for every cadence — the PDF defines a single checklist, so a daily
+   commissary check is the same 31 lines scored as a daily rather than a second question set to maintain. */
+function activeSetKey(){ var p=curProfile(); if(p==="commissary") return "comm"; var wh=p==="warehouse"; return isDaily()?(wh?"whdaily":"daily"):(wh?"wh":"full"); }
 function dirtyDraftsFor(set){
   var out=[], types=(set==="daily"||set==="whdaily")?["daily"]:["weekly","monthly","quarterly"];
-  var wantWh=(set==="wh"||set==="whdaily");
+  var wantProfile=(set==="wh"||set==="whdaily")?"warehouse":(set==="comm"?"commissary":"restaurant");
+  if(set==="comm") types=["daily","weekly","monthly","quarterly"]; /* one commissary set covers every cadence */
   types.forEach(function(t){
     Object.keys(state.data[t]||{}).forEach(function(b){
-      if((branchProfile(b)==="warehouse")!==wantWh) return;
+      if(branchProfile(b)!==wantProfile) return;
       var a=state.data[t][b];
       if(a&&a.scores&&Object.keys(a.scores).length>0) out.push(TYPES[t].short+" — "+b);
     });
@@ -1355,7 +1434,7 @@ function syncQuestionSet(set){
 }
 window.FO_SYNC_QS=syncQuestionSet;
 function syncQsOnBoot(){
-  ["full","daily","wh","whdaily"].forEach(function(set){
+  ["full","daily","wh","whdaily","comm"].forEach(function(set){
     var ck=setConfigKey(set), file=fileStamp(set), dev=(state.qsMeta&&state.qsMeta[set])||{base:0,edits:0};
     if(!state[ck]){
       /* device tracks the file already — adopt the file's stamp, tell the user only on a real content change */
@@ -1404,18 +1483,18 @@ function typeMeta(){ return TYPES[state.auditType]||TYPES.weekly; }
    so selecting the Warehouse loads the warehouse question sets and weights. */
 function branchProfile(b){ return (state.branchProfiles&&state.branchProfiles[b])||PROFILE_DEFAULT[b]||"restaurant"; }
 function curProfile(){ return branchProfile(state.currentBranch); }
-function FULLSECS(){ return curProfile()==="warehouse"?WSECTIONS:SECTIONS; }
-function DAILYSECS(){ return curProfile()==="warehouse"?WDSECTIONS:DSECTIONS; }
+function FULLSECS(){ var p=curProfile(); return p==="warehouse"?WSECTIONS:(p==="commissary"?CSECTIONS:SECTIONS); }
+function DAILYSECS(){ var p=curProfile(); return p==="warehouse"?WDSECTIONS:(p==="commissary"?CSECTIONS:DSECTIONS); }
 function SECS(){ return isDaily()?DAILYSECS():FULLSECS(); }
-function CATW(){ return curProfile()==="warehouse"?WCATWEIGHTS:CATWEIGHTS; }
-function CATN(){ return curProfile()==="warehouse"?WCATNAMES:CATNAMES; }
+function CATW(){ var p=curProfile(); return p==="warehouse"?WCATWEIGHTS:(p==="commissary"?CCATWEIGHTS:CATWEIGHTS); }
+function CATN(){ var p=curProfile(); return p==="warehouse"?WCATNAMES:(p==="commissary"?CCATNAMES:CATNAMES); }
 function cur(){ if(!state.currentBranch) return null; var d=state.data[state.auditType]; if(!d[state.currentBranch]) d[state.currentBranch]=emptyAudit(); return d[state.currentBranch]; }
 function CS(){ var c=cur(); return c?c.scores:{}; }
 function CC(){ var c=cur(); return c?c.critical:{}; }
 function k(sec,ch){ return sec.id+"||"+ch.id; }
 function getSec(id){ var L=SECS(); for(var i=0;i<L.length;i++) if(L[i].id===id) return L[i]; return null; }
 function secIndex(id){ return SECS().findIndex(function(s){return s.id===id;}); }
-function secLabelFor(i,isD,profile){ return isD?("R"+(i+1)):(profile==="warehouse"?("W"+(i+1)):("§"+(i+7))); }
+function secLabelFor(i,isD,profile){ if(profile==="commissary") return "C"+(i+1); return isD?("R"+(i+1)):(profile==="warehouse"?("W"+(i+1)):("§"+(i+7))); }
 function secNum(sec){ return secLabelFor(secIndex(sec.id), isDaily(), curProfile()); }
 
 function fullR(){ return pureFullResult(FULLSECS(), CATW(), CS(), CC(), CRITICAL); }
@@ -1931,7 +2010,7 @@ function renderFullDash(dt,h,head){
   /* mixed profiles: restaurant category ids first, then any warehouse ids present in the records */
   var dashCols=Object.keys(CATWEIGHTS).map(function(cc){ return {id:cc,name:CATSHORT[cc]}; });
   (function(){ var seen={}; dashCols.forEach(function(c){seen[c.id]=true;});
-    latest.forEach(function(r){ if(r.cats) Object.keys(r.cats).forEach(function(id){ if(!seen[id]){ seen[id]=true; dashCols.push({id:id,name:WCATSHORT[id]||ALLCATN[id]||id}); } }); }); })();
+    latest.forEach(function(r){ if(r.cats) Object.keys(r.cats).forEach(function(id){ if(!seen[id]){ seen[id]=true; dashCols.push({id:id,name:WCATSHORT[id]||CCATSHORT[id]||ALLCATN[id]||id}); } }); }); })();
   var catAvg={}; dashCols.forEach(function(col){ var vals=latest.map(function(r){return r.cats?r.cats[col.id]:null;}).filter(function(x){return x!=null;}); catAvg[col.id]=vals.length?vals.reduce(function(a,b){return a+b;},0)/vals.length:null; });
   var present=Object.keys(catAvg).filter(function(cc){return catAvg[cc]!=null;});
   var best=present.length?present.reduce(function(a,b){return catAvg[a]>=catAvg[b]?a:b;}):null;
@@ -2296,6 +2375,7 @@ function buildAppHTML(){
   var CLOSE="<"+"/script>";
   var baked="window.__FO_BAKED_CONFIG__="+jsonSafe(SECTIONS)+";window.__FO_BAKED_DAILY__="+jsonSafe(DSECTIONS)
     +";window.__FO_BAKED_WH__="+jsonSafe(WSECTIONS)+";window.__FO_BAKED_WHDAILY__="+jsonSafe(WDSECTIONS)
+    +";window.__FO_BAKED_COMM__="+jsonSafe(CSECTIONS)
     +";window.__FO_BAKED_PROFILES__="+jsonSafe(state.branchProfiles||{})
     +";window.__FO_BAKED_QSV__="+jsonSafe(state.qsMeta)
     +";window.__FO_BAKED_ADMIN__="+jsonSafe(state.admin||null)+";";
@@ -2343,8 +2423,8 @@ function renderAdminLogin(){
     document.getElementById("lg_pw").addEventListener("keydown", function(e){ if(e.key==="Enter") doLogin(); });
   }
 }
-function admWeights(){ return (ADM_TAB==="wh"||ADM_TAB==="whdaily")?WCATWEIGHTS:CATWEIGHTS; }
-function admNames(){ return (ADM_TAB==="wh"||ADM_TAB==="whdaily")?WCATNAMES:CATNAMES; }
+function admWeights(){ return (ADM_TAB==="wh"||ADM_TAB==="whdaily")?WCATWEIGHTS:(ADM_TAB==="comm"?CCATWEIGHTS:CATWEIGHTS); }
+function admNames(){ return (ADM_TAB==="wh"||ADM_TAB==="whdaily")?WCATNAMES:(ADM_TAB==="comm"?CCATNAMES:CATNAMES); }
 function catOptions(sel){
   var W=admWeights(), N=admNames();
   var opts='<option value=""'+(!sel?' selected':'')+'>Unweighted (not in grade)</option>';
@@ -2352,11 +2432,11 @@ function catOptions(sel){
   return opts;
 }
 function grpOptions(sel){
-  var gs=(ADM_TAB==="wh")?['Warehouse Operations','Compliance']:['Product Quality','Operations'];
+  var gs=(ADM_TAB==="wh")?['Warehouse Operations','Compliance']:(ADM_TAB==="comm"?['Production','Facility & Hygiene']:['Product Quality','Operations']);
   if(sel&&gs.indexOf(sel)<0) gs.push(sel);
   return gs.map(function(g){return '<option'+(sel===g?' selected':'')+'>'+g+'</option>';}).join("");
 }
-function admList(){ return ADM_TAB==="daily"?DSECTIONS:(ADM_TAB==="wh"?WSECTIONS:(ADM_TAB==="whdaily"?WDSECTIONS:SECTIONS)); }
+function admList(){ return ADM_TAB==="daily"?DSECTIONS:(ADM_TAB==="wh"?WSECTIONS:(ADM_TAB==="whdaily"?WDSECTIONS:(ADM_TAB==="comm"?CSECTIONS:SECTIONS))); }
 function renderAdmin(){
   var daily=(ADM_TAB==="daily"||ADM_TAB==="whdaily"); /* daily-type tabs: no category/group selects, crit = stop item */
   var html='<div class="adm-account"><span>Signed in as <b>'+esc((state.admin&&state.admin.user)||"admin")+'</b></span><div class="aa-actions"><button class="btn sm" id="chgPwBtn">Change password</button><button class="btn sm" id="logoutBtn">Log out</button></div></div>'
@@ -2385,6 +2465,7 @@ function renderAdmin(){
       +'<button class="dtab'+(ADM_TAB==="daily"?' active':'')+'" data-admtab="daily">Restaurant daily</button>'
       +'<button class="dtab'+(ADM_TAB==="wh"?' active':'')+'" data-admtab="wh">Warehouse audit</button>'
       +'<button class="dtab'+(ADM_TAB==="whdaily"?' active':'')+'" data-admtab="whdaily">Warehouse daily</button>'
+      +'<button class="dtab'+(ADM_TAB==="comm"?' active':'')+'" data-admtab="comm">Commissary audit</button>'
       +'<span class="okpill" style="align-self:center">question set '+qsLabel(ADM_TAB)+'</span>'
       +(qsNewer(fileStamp(ADM_TAB), state.qsMeta[ADM_TAB])?'<button class="btn submit sm" id="syncQsBtn" style="align-self:center">⟳ Sync to latest questionnaire (v'+fileStamp(ADM_TAB).base+')</button>':'')
       +'</div>'
